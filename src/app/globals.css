@@ -1,26 +1,105 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #f3efe6;
+  --surface: #ebe4d6;
+  --ink: #1c1917;
+  --muted: #78716c;
+  --accent: #0f766e;
+  --accent-soft: #ccfbf1;
+  --border: #d6d0c4;
+  --danger: #b91c1c;
+  --background: var(--bg);
+  --foreground: var(--ink);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-sans);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #dde8e4 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #efe6d4 0%, transparent 50%),
+    var(--bg);
+  color: var(--ink);
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--muted);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.prose a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.field {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+  background: white;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+}
+
+.field:focus {
+  outline: 2px solid color-mix(in oklab, var(--accent) 45%, transparent);
+  outline-offset: 1px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 0.55rem;
+  padding: 0.7rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: white;
+}
+
+.btn-accent {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-ghost {
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--ink);
+}
+
+.card {
+  border-radius: 0.85rem;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, white 82%, var(--surface));
+  padding: 1rem;
 }

@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique @default("solo@local")
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  profile      Profile?
+  jobs         Job[]
+  templates    Template[]
+}
+
+model Profile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName  String   @default("")
+  headline  String   @default("")
+  linkedIn  String   @default("")
+  portfolio String   @default("")
+  phone     String   @default("")
+  summary   String   @default("")
+  skills    String   @default("")
+  /// JSON blob ready for future autofill extension
+  autofillJson String @default("{}")
+  updatedAt DateTime @updatedAt
+}
+
+model Job {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceUrl  String    @default("")
+  sourceText String    @default("")
+  company    String    @default("")
+  role       String    @default("")
+  location   String    @default("")
+  notes      String    @default("")
+  /// researching | drafting | outreached | archived
+  status     String    @default("researching")
+  extractMeta String   @default("{}")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  contacts   Contact[]
+  drafts     Draft[]
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  title     String   @default("")
+  createdAt DateTime @default(now())
+  drafts    Draft[]
+}
+
+model Template {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  subject     String   @default("")
+  /// HTML body with {{placeholders}}
+  bodyHtml    String   @default("")
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  drafts      Draft[]
+}
+
+model Draft {
+  id           String   @id @default(cuid())
+  jobId        String
+  job          Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  contactId    String
+  contact      Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  templateId   String?
+  template     Template? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  subject      String
+  bodyHtml     String
+  bodyPlain    String   @default("")
+  /// ready | copied | opened | sent_manual
+  status       String   @default("ready")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
