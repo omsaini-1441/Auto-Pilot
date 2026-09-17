@@ -22,7 +22,6 @@ export default async function HomePage() {
     <div className="space-y-5">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h1 className="font-[family-name:var(--font-display)] text-3xl">Jobs</h1>
           <p className="text-sm text-[var(--muted)]">Your saved hiring pipeline</p>
         </div>
         <Link href="/jobs/new" className="btn btn-accent">

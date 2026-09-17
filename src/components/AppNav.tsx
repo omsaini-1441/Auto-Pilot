@@ -4,16 +4,27 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const links = [
-  { href: "/", label: "Jobs" },
-  { href: "/jobs/new", label: "Add" },
-  { href: "/apollo", label: "Apollo" },
-  { href: "/templates", label: "Templates" },
-  { href: "/profile", label: "Me" },
+  { href: "/", label: "Jobs", match: (p: string) => p === "/" },
+  { href: "/jobs/new", label: "Add", match: (p: string) => p.startsWith("/jobs/new") },
+  { href: "/apollo", label: "Apollo", match: (p: string) => p.startsWith("/apollo") },
+  { href: "/templates", label: "Templates", match: (p: string) => p.startsWith("/templates") },
+  { href: "/profile", label: "Me", match: (p: string) => p.startsWith("/profile") },
 ];
+
+function pageTitle(pathname: string) {
+  if (pathname === "/") return "Jobs";
+  if (pathname.startsWith("/jobs/new")) return "Add job";
+  if (pathname.startsWith("/jobs/")) return "Job";
+  if (pathname.startsWith("/apollo")) return "Apollo";
+  if (pathname.startsWith("/templates")) return "Templates";
+  if (pathname.startsWith("/profile")) return "Profile";
+  return "Outreach";
+}
 
 export function AppNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const title = pageTitle(pathname);
 
   async function logout() {
     await fetch("/api/auth", {
@@ -30,17 +41,20 @@ export function AppNav() {
   return (
     <header className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur">
       <div className="mx-auto flex max-w-lg items-center justify-between gap-2 px-4 py-3">
-        <Link href="/" className="font-[family-name:var(--font-display)] text-lg tracking-tight text-[var(--ink)]">
-          Outreach
+        <Link
+          href="/"
+          className="min-w-0 font-[family-name:var(--font-display)] text-lg tracking-tight text-[var(--ink)]"
+        >
+          {title}
         </Link>
-        <nav className="flex items-center gap-1">
+        <nav className="flex shrink-0 items-center gap-0.5">
           {links.map((l) => {
-            const active = pathname === l.href || (l.href !== "/" && pathname.startsWith(l.href));
+            const active = l.match(pathname);
             return (
               <Link
                 key={l.href}
                 href={l.href}
-                className={`rounded-md px-2.5 py-1.5 text-sm ${
+                className={`rounded-md px-2 py-1.5 text-sm ${
                   active ? "bg-[var(--ink)] text-white" : "text-[var(--muted)]"
                 }`}
               >

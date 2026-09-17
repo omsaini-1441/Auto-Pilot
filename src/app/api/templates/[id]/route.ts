@@ -36,5 +36,16 @@ export async function DELETE(_req: Request, ctx: Ctx) {
   const existing = await prisma.template.findFirst({ where: { id, userId: user.id } });
   if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
   await prisma.template.delete({ where: { id } });
+
+  if (existing.isDefault) {
+    const next = await prisma.template.findFirst({
+      where: { userId: user.id },
+      orderBy: { updatedAt: "desc" },
+    });
+    if (next) {
+      await prisma.template.update({ where: { id: next.id }, data: { isDefault: true } });
+    }
+  }
+
   return NextResponse.json({ ok: true });
 }
