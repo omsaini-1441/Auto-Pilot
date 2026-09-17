@@ -2,6 +2,16 @@
 
 Mobile-first solo job outreach tool: capture hiring signal → dump contacts → rich-text drafts → copy into Gmail.
 
+## Docs
+
+Full write-ups live in **[docs/](./docs/README.md)**:
+
+- [Overview](./docs/overview.md) — what & why
+- [Tech stack](./docs/tech-stack.md) — Next.js, Prisma, TipTap, Gemini
+- [Workflow](./docs/workflow.md) — job → contacts → draft → Gmail
+- [Setup](./docs/setup.md) — install & env
+- [Data model](./docs/data-model.md) — entities & APIs
+
 ## Quick start
 
 ```bash
