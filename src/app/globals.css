@@ -494,4 +494,56 @@ body {
   background: color-mix(in oklab, white 35%, transparent);
 }
 
+/* Desktop layout polish — mobile unchanged */
+@media (min-width: 1024px) {
+  .panel {
+    padding: 1.35rem 1.5rem 1.5rem;
+  }
+
+  .panel-head h2 {
+    font-size: 1.55rem;
+  }
+
+  .card {
+    padding: 1.25rem;
+  }
+
+  .stepper {
+    max-width: 28rem;
+  }
+
+  .mail-preview,
+  .mail-card {
+    padding: 1.15rem 1.25rem;
+  }
+
+  .mail-actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .tpl-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .tpl-body {
+    padding-left: 0.9rem;
+  }
+
+  .desktop-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .desktop-split > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0;
+  }
+
+  .desktop-sticky {
+    position: sticky;
+    top: 5.5rem;
+  }
+}
+
 

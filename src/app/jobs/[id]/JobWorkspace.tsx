@@ -324,7 +324,7 @@ export function JobWorkspace({
         </Link>
         <div className="mt-2 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="font-[family-name:var(--font-display)] text-3xl leading-tight">
+            <h1 className="font-[family-name:var(--font-display)] text-3xl leading-tight lg:text-4xl">
               {job.company || "Job"}
             </h1>
             <p className="text-sm text-[var(--muted)]">
@@ -385,67 +385,75 @@ export function JobWorkspace({
             </button>
           </header>
 
-          <textarea
-            className="field min-h-[88px] font-mono text-sm"
-            value={dump}
-            onChange={(e) => setDump(e.target.value)}
-            placeholder={"Jane Doe, jane@acme.com, Recruiter\nSam Lee <sam@acme.com>"}
-          />
-          <BusyButton
-            type="button"
-            className="btn btn-ghost w-full"
-            disabled={!dump.trim()}
-            busy={busy === "contacts"}
-            busyLabel="Adding…"
-            onClick={addContacts}
-          >
-            Add to list
-          </BusyButton>
-
-          {job.contacts.length === 0 ? (
-            <p className="empty-hint">No contacts yet. Paste a dump above.</p>
-          ) : (
-            <div className="contact-list">
-              <div className="contact-list-toolbar">
-                <span>{selected.length} selected</span>
-                <div className="flex gap-3">
-                  <button type="button" onClick={() => setSelected(job.contacts.map((c) => c.id))}>
-                    All
-                  </button>
-                  <button type="button" onClick={() => setSelected([])}>
-                    None
-                  </button>
-                </div>
-              </div>
-              <ul>
-                {job.contacts.map((c) => {
-                  const on = selected.includes(c.id);
-                  return (
-                    <li key={c.id}>
-                      <button
-                        type="button"
-                        className={`contact-row ${on ? "is-on" : ""}`}
-                        onClick={() => toggleContact(c.id)}
-                      >
-                        <span className={`toggle-dot ${on ? "is-on" : ""}`} aria-hidden />
-                        <span className="min-w-0 flex-1 text-left">
-                          <span className="block truncate font-medium">{c.name}</span>
-                          <span className="block truncate text-xs text-[var(--muted)]">
-                            {c.email}
-                            {c.title ? ` · ${c.title}` : ""}
-                          </span>
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
+          <div className="space-y-4 desktop-split">
+            <div className="space-y-4">
+              <textarea
+                className="field min-h-[88px] font-mono text-sm lg:min-h-[140px]"
+                value={dump}
+                onChange={(e) => setDump(e.target.value)}
+                placeholder={"Jane Doe, jane@acme.com, Recruiter\nSam Lee <sam@acme.com>"}
+              />
+              <BusyButton
+                type="button"
+                className="btn btn-ghost w-full"
+                disabled={!dump.trim()}
+                busy={busy === "contacts"}
+                busyLabel="Adding…"
+                onClick={addContacts}
+              >
+                Add to list
+              </BusyButton>
             </div>
-          )}
+
+            <div>
+              {job.contacts.length === 0 ? (
+                <p className="empty-hint lg:rounded-xl lg:border lg:border-dashed lg:border-[var(--border)] lg:py-10">
+                  No contacts yet. Paste a dump above.
+                </p>
+              ) : (
+                <div className="contact-list lg:max-h-[28rem] lg:overflow-y-auto">
+                  <div className="contact-list-toolbar">
+                    <span>{selected.length} selected</span>
+                    <div className="flex gap-3">
+                      <button type="button" onClick={() => setSelected(job.contacts.map((c) => c.id))}>
+                        All
+                      </button>
+                      <button type="button" onClick={() => setSelected([])}>
+                        None
+                      </button>
+                    </div>
+                  </div>
+                  <ul>
+                    {job.contacts.map((c) => {
+                      const on = selected.includes(c.id);
+                      return (
+                        <li key={c.id}>
+                          <button
+                            type="button"
+                            className={`contact-row ${on ? "is-on" : ""}`}
+                            onClick={() => toggleContact(c.id)}
+                          >
+                            <span className={`toggle-dot ${on ? "is-on" : ""}`} aria-hidden />
+                            <span className="min-w-0 flex-1 text-left">
+                              <span className="block truncate font-medium">{c.name}</span>
+                              <span className="block truncate text-xs text-[var(--muted)]">
+                                {c.email}
+                                {c.title ? ` · ${c.title}` : ""}
+                              </span>
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
 
           <button
             type="button"
-            className="btn btn-primary w-full"
+            className="btn btn-primary w-full lg:max-w-xs"
             disabled={!selected.length}
             onClick={() => setStep(2)}
           >
@@ -469,58 +477,82 @@ export function JobWorkspace({
             </div>
           ) : null}
 
-          <div className="flex gap-2">
-            <BusyButton
-              type="button"
-              className="btn btn-ghost flex-1 text-sm"
-              onClick={generateAiTemplate}
-              busy={busy === "ai"}
-              busyLabel="Writing…"
-            >
-              AI draft
-            </BusyButton>
-            <Link href="/templates" className="btn btn-ghost flex-1 text-center text-sm">
-              Edit templates
-            </Link>
-          </div>
+          <div className="space-y-4 desktop-split">
+            <div className="space-y-4">
+              <div className="flex gap-2">
+                <BusyButton
+                  type="button"
+                  className="btn btn-ghost flex-1 text-sm"
+                  onClick={generateAiTemplate}
+                  busy={busy === "ai"}
+                  busyLabel="Writing…"
+                >
+                  AI draft
+                </BusyButton>
+                <Link href="/templates" className="btn btn-ghost flex-1 text-center text-sm">
+                  Edit templates
+                </Link>
+              </div>
 
-          {templates.length === 0 ? (
-            <p className="empty-hint">No templates yet. Create one or use AI draft.</p>
-          ) : (
-            <>
-              <label className="label" htmlFor="template">
-                Template
-              </label>
-              <select id="template" className="field" value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
-                {templates.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.name}
-                    {t.isDefault ? " · default" : ""}
-                  </option>
-                ))}
-              </select>
-
-              {selected.length > 0 ? (
-                <div className="person-chips">
-                  {selected.map((id) => {
-                    const c = job.contacts.find((x) => x.id === id);
-                    if (!c) return null;
-                    return (
-                      <button
-                        key={id}
-                        type="button"
-                        className={`person-chip ${activePersonId === id ? "is-active" : ""}`}
-                        onClick={() => setActivePersonId(id)}
-                      >
-                        {c.name.split(" ")[0]}
-                      </button>
-                    );
-                  })}
-                </div>
+              {templates.length === 0 ? (
+                <p className="empty-hint">No templates yet. Create one or use AI draft.</p>
               ) : (
-                <p className="empty-hint">Go back and select contacts first.</p>
+                <>
+                  <div>
+                    <label className="label" htmlFor="template">
+                      Template
+                    </label>
+                    <select id="template" className="field" value={templateId} onChange={(e) => setTemplateId(e.target.value)}>
+                      {templates.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.name}
+                          {t.isDefault ? " · default" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {selected.length > 0 ? (
+                    <div className="person-chips">
+                      {selected.map((id) => {
+                        const c = job.contacts.find((x) => x.id === id);
+                        if (!c) return null;
+                        return (
+                          <button
+                            key={id}
+                            type="button"
+                            className={`person-chip ${activePersonId === id ? "is-active" : ""}`}
+                            onClick={() => setActivePersonId(id)}
+                          >
+                            {c.name.split(" ")[0]}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="empty-hint">Go back and select contacts first.</p>
+                  )}
+                </>
               )}
 
+              <div className="flex gap-2">
+                <button type="button" className="btn btn-ghost flex-1" onClick={() => setStep(1)}>
+                  Back
+                </button>
+                <BusyButton
+                  type="button"
+                  className="btn btn-primary flex-1"
+                  disabled={!selected.length || !template}
+                  busy={busy === "drafts"}
+                  busyLabel="Building…"
+                  onClick={generateDrafts}
+                >
+                  {`Build for ${selected.length}`}
+                </BusyButton>
+              </div>
+            </div>
+
+            <div className="desktop-sticky">
               {livePreview ? (
                 <article className="mail-preview">
                   <p className="mail-preview-meta">Preview · {livePreview.contact.name}</p>
@@ -530,24 +562,12 @@ export function JobWorkspace({
                     dangerouslySetInnerHTML={{ __html: livePreview.bodyHtml }}
                   />
                 </article>
+              ) : templates.length > 0 ? (
+                <p className="empty-hint lg:rounded-xl lg:border lg:border-dashed lg:border-[var(--border)] lg:py-10">
+                  Select a contact to preview the email.
+                </p>
               ) : null}
-            </>
-          )}
-
-          <div className="flex gap-2">
-            <button type="button" className="btn btn-ghost flex-1" onClick={() => setStep(1)}>
-              Back
-            </button>
-            <BusyButton
-              type="button"
-              className="btn btn-primary flex-1"
-              disabled={!selected.length || !template}
-              busy={busy === "drafts"}
-              busyLabel="Building…"
-              onClick={generateDrafts}
-            >
-              {`Build for ${selected.length}`}
-            </BusyButton>
+            </div>
           </div>
         </section>
       ) : null}
@@ -564,97 +584,122 @@ export function JobWorkspace({
           {latestDrafts.length === 0 ? (
             <p className="empty-hint">No drafts yet. Build them from the Template step.</p>
           ) : (
-            <>
-              <div className="person-chips">
-                {latestDrafts.map((d) => (
-                  <button
-                    key={d.id}
-                    type="button"
-                    className={`person-chip ${activeDraft?.id === d.id ? "is-active" : ""}`}
-                    onClick={() => setActivePersonId(d.contact.id)}
-                  >
-                    {d.contact.name.split(" ")[0]}
-                    <span className="person-chip-status">{d.status === "ready" ? "" : "·"}</span>
+            <div className="space-y-4 desktop-split">
+              <div className="space-y-4">
+                <div className="person-chips lg:flex lg:flex-col lg:items-stretch lg:gap-2 lg:overflow-visible">
+                  {latestDrafts.map((d) => (
+                    <button
+                      key={d.id}
+                      type="button"
+                      className={`person-chip lg:flex lg:w-full lg:items-center lg:justify-between lg:rounded-lg lg:px-3 lg:py-2.5 ${
+                        activeDraft?.id === d.id ? "is-active" : ""
+                      }`}
+                      onClick={() => setActivePersonId(d.contact.id)}
+                    >
+                      <span className="truncate">{d.contact.name.split(" ")[0]}</span>
+                      <span className="person-chip-status hidden text-xs opacity-80 lg:inline">
+                        {d.status === "ready" ? "" : d.status}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex gap-2">
+                  <button type="button" className="btn btn-ghost flex-1" onClick={() => setStep(2)}>
+                    Back
                   </button>
-                ))}
+                  <BusyButton
+                    type="button"
+                    className="btn btn-primary flex-1"
+                    onClick={generateDrafts}
+                    busy={busy === "drafts"}
+                    busyLabel="Building…"
+                  >
+                    Rebuild drafts
+                  </BusyButton>
+                </div>
               </div>
 
-              {activeDraft ? (
-                <article className="mail-card">
-                  <div className="mail-card-top">
-                    <div>
-                      <p className="font-semibold">{activeDraft.contact.name}</p>
-                      <p className="text-xs text-[var(--muted)]">{activeDraft.contact.email}</p>
+              <div className="desktop-sticky">
+                {activeDraft ? (
+                  <article className="mail-card">
+                    <div className="mail-card-top">
+                      <div>
+                        <p className="font-semibold">{activeDraft.contact.name}</p>
+                        <p className="text-xs text-[var(--muted)]">{activeDraft.contact.email}</p>
+                      </div>
+                      <span className="status-pill">{activeDraft.status}</span>
                     </div>
-                    <span className="status-pill">{activeDraft.status}</span>
-                  </div>
-                  <p className="mail-card-subject">{activeDraft.subject}</p>
-                  <div
-                    className="mail-preview-body"
-                    dangerouslySetInnerHTML={{ __html: activeDraft.bodyHtml }}
-                  />
-                  <div className="mail-actions">
-                    <BusyButton
-                      type="button"
-                      className="btn btn-accent"
-                      busy={busy === `copy:${activeDraft.id}`}
-                      busyLabel="Copying…"
-                      disabled={Boolean(busy) && busy !== `copy:${activeDraft.id}`}
-                      onClick={() => onRichCopy(activeDraft)}
-                    >
-                      Rich copy
-                    </BusyButton>
-                    <button
-                      type="button"
-                      className="btn btn-ghost"
-                      disabled={Boolean(busy)}
-                      onClick={async () => {
-                        const ok = await copyText(activeDraft.subject);
-                        flash(ok ? "Subject copied" : "Copy failed");
-                      }}
-                    >
-                      Subject
-                    </button>
-                    <BusyButton
-                      type="button"
-                      className="btn btn-ghost"
-                      busy={busy === `gmail:${activeDraft.id}`}
-                      busyLabel="Opening…"
-                      disabled={Boolean(busy) && busy !== `gmail:${activeDraft.id}`}
-                      onClick={() => onGmail(activeDraft)}
-                    >
-                      Gmail
-                    </BusyButton>
-                    <BusyButton
-                      type="button"
-                      className="btn btn-ghost"
-                      busy={busy === `draft:sent_manual:${activeDraft.id}`}
-                      busyLabel="Saving…"
-                      disabled={Boolean(busy) && busy !== `draft:sent_manual:${activeDraft.id}`}
-                      onClick={() => markDraft(activeDraft.id, "sent_manual")}
-                    >
-                      Mark sent
-                    </BusyButton>
-                  </div>
-                </article>
-              ) : null}
-            </>
+                    <p className="mail-card-subject">{activeDraft.subject}</p>
+                    <div
+                      className="mail-preview-body"
+                      dangerouslySetInnerHTML={{ __html: activeDraft.bodyHtml }}
+                    />
+                    <div className="mail-actions">
+                      <BusyButton
+                        type="button"
+                        className="btn btn-accent"
+                        busy={busy === `copy:${activeDraft.id}`}
+                        busyLabel="Copying…"
+                        disabled={Boolean(busy) && busy !== `copy:${activeDraft.id}`}
+                        onClick={() => onRichCopy(activeDraft)}
+                      >
+                        Rich copy
+                      </BusyButton>
+                      <button
+                        type="button"
+                        className="btn btn-ghost"
+                        disabled={Boolean(busy)}
+                        onClick={async () => {
+                          const ok = await copyText(activeDraft.subject);
+                          flash(ok ? "Subject copied" : "Copy failed");
+                        }}
+                      >
+                        Subject
+                      </button>
+                      <BusyButton
+                        type="button"
+                        className="btn btn-ghost"
+                        busy={busy === `gmail:${activeDraft.id}`}
+                        busyLabel="Opening…"
+                        disabled={Boolean(busy) && busy !== `gmail:${activeDraft.id}`}
+                        onClick={() => onGmail(activeDraft)}
+                      >
+                        Gmail
+                      </BusyButton>
+                      <BusyButton
+                        type="button"
+                        className="btn btn-ghost"
+                        busy={busy === `draft:sent_manual:${activeDraft.id}`}
+                        busyLabel="Saving…"
+                        disabled={Boolean(busy) && busy !== `draft:sent_manual:${activeDraft.id}`}
+                        onClick={() => markDraft(activeDraft.id, "sent_manual")}
+                      >
+                        Mark sent
+                      </BusyButton>
+                    </div>
+                  </article>
+                ) : null}
+              </div>
+            </div>
           )}
 
-          <div className="flex gap-2">
-            <button type="button" className="btn btn-ghost flex-1" onClick={() => setStep(2)}>
-              Back
-            </button>
-            <BusyButton
-              type="button"
-              className="btn btn-primary flex-1"
-              onClick={generateDrafts}
-              busy={busy === "drafts"}
-              busyLabel="Building…"
-            >
-              Rebuild drafts
-            </BusyButton>
-          </div>
+          {latestDrafts.length === 0 ? (
+            <div className="flex gap-2 lg:max-w-md">
+              <button type="button" className="btn btn-ghost flex-1" onClick={() => setStep(2)}>
+                Back
+              </button>
+              <BusyButton
+                type="button"
+                className="btn btn-primary flex-1"
+                onClick={generateDrafts}
+                busy={busy === "drafts"}
+                busyLabel="Building…"
+              >
+                Rebuild drafts
+              </BusyButton>
+            </div>
+          ) : null}
         </section>
       ) : null}
 

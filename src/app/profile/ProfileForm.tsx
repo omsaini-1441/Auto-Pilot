@@ -40,7 +40,7 @@ export function ProfileForm({ initial }: { initial: Profile }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="card space-y-3">
+    <form onSubmit={onSubmit} className="card space-y-3 lg:grid lg:grid-cols-2 lg:gap-x-5 lg:gap-y-3 lg:space-y-0">
       {(
         [
           ["fullName", "Full name", "text"],
@@ -50,7 +50,7 @@ export function ProfileForm({ initial }: { initial: Profile }) {
           ["phone", "Phone", "tel"],
         ] as const
       ).map(([key, label, type]) => (
-        <div key={key}>
+        <div key={key} className={key === "phone" ? "lg:col-span-1" : undefined}>
           <label className="label" htmlFor={key}>
             {label}
           </label>
@@ -63,7 +63,7 @@ export function ProfileForm({ initial }: { initial: Profile }) {
           />
         </div>
       ))}
-      <div>
+      <div className="lg:col-span-2">
         <label className="label" htmlFor="summary">
           Summary
         </label>
@@ -74,7 +74,7 @@ export function ProfileForm({ initial }: { initial: Profile }) {
           onChange={(e) => set("summary", e.target.value)}
         />
       </div>
-      <div>
+      <div className="lg:col-span-2">
         <label className="label" htmlFor="skills">
           Skills
         </label>
@@ -85,7 +85,7 @@ export function ProfileForm({ initial }: { initial: Profile }) {
           onChange={(e) => set("skills", e.target.value)}
         />
       </div>
-      <div>
+      <div className="lg:col-span-2">
         <label className="label" htmlFor="autofillJson">
           Autofill JSON (extension-ready)
         </label>
@@ -96,10 +96,12 @@ export function ProfileForm({ initial }: { initial: Profile }) {
           onChange={(e) => set("autofillJson", e.target.value)}
         />
       </div>
-      <BusyButton className="btn btn-primary w-full" type="submit" busy={saving} busyLabel="Saving…">
-        Save profile
-      </BusyButton>
-      {saved ? <p className="text-sm text-[var(--accent)]">Saved</p> : null}
+      <div className="lg:col-span-2 lg:flex lg:items-center lg:gap-4">
+        <BusyButton className="btn btn-primary w-full lg:w-auto lg:min-w-[10rem]" type="submit" busy={saving} busyLabel="Saving…">
+          Save profile
+        </BusyButton>
+        {saved ? <p className="text-sm text-[var(--accent)]">Saved</p> : null}
+      </div>
     </form>
   );
 }

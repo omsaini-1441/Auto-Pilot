@@ -90,16 +90,17 @@ export function AppNav() {
           <div className="nav-progress-bar" />
         </div>
       ) : null}
-      <div className="mx-auto flex max-w-lg items-center justify-between gap-3 px-4 py-3">
+      <div className="mx-auto flex max-w-lg items-center justify-between gap-3 px-4 py-3 lg:max-w-6xl lg:px-8">
         <button
           type="button"
           onClick={() => navigate("/")}
-          className="min-w-0 truncate text-left font-[family-name:var(--font-display)] text-lg tracking-tight text-[var(--ink)]"
+          className="min-w-0 truncate text-left font-[family-name:var(--font-display)] text-lg tracking-tight text-[var(--ink)] lg:text-xl"
         >
-          {title}
+          <span className="lg:hidden">{title}</span>
+          <span className="hidden lg:inline">Outreach</span>
         </button>
 
-        <nav className="hidden items-center gap-0.5 sm:flex" aria-label="Main">
+        <nav className="hidden items-center gap-1 sm:flex lg:gap-1.5" aria-label="Main">
           {links.map((l) => {
             const active = l.match(pathname);
             return (
@@ -107,8 +108,10 @@ export function AppNav() {
                 key={l.href}
                 type="button"
                 onClick={() => navigate(l.href)}
-                className={`rounded-md px-2 py-1.5 text-sm ${
-                  active ? "bg-[var(--ink)] text-white" : "text-[var(--muted)]"
+                className={`rounded-md px-2.5 py-1.5 text-sm lg:px-3 ${
+                  active
+                    ? "bg-[var(--ink)] text-white"
+                    : "text-[var(--muted)] hover:bg-white/70 hover:text-[var(--ink)]"
                 }`}
               >
                 {l.label}
@@ -119,7 +122,7 @@ export function AppNav() {
             type="button"
             onClick={logout}
             disabled={loggingOut}
-            className="ml-1 inline-flex items-center gap-1.5 text-xs text-[var(--muted)] underline disabled:opacity-55"
+            className="ml-2 inline-flex items-center gap-1.5 text-xs text-[var(--muted)] underline disabled:opacity-55 lg:ml-3"
           >
             {loggingOut ? <Spinner size="sm" /> : null}
             {loggingOut ? "Logging out…" : "Log out"}

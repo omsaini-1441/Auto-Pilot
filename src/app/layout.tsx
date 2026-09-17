@@ -36,7 +36,9 @@ export default function RootLayout({
     <html lang="en" className={`${sans.variable} ${display.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-[var(--bg)] text-[var(--ink)] antialiased">
         <AppNav />
-        <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4 pb-24">{children}</main>
+        <main className="mx-auto w-full max-w-lg flex-1 px-4 py-4 pb-24 lg:max-w-6xl lg:px-8 lg:py-8 lg:pb-12">
+          {children}
+        </main>
       </body>
     </html>
   );

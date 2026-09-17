@@ -222,7 +222,8 @@ export function TemplatesClient({ initial }: { initial: Template[] }) {
         <div>
           <h1 className="font-[family-name:var(--font-display)] text-3xl">Templates</h1>
           <p className="text-sm text-[var(--muted)]">
-            {templates.length} saved · tap a row to expand
+            {templates.length} saved · <span className="lg:hidden">tap a row to expand</span>
+            <span className="hidden lg:inline">click a row to expand</span>
           </p>
         </div>
         <div className="flex gap-2">
@@ -304,95 +305,99 @@ export function TemplatesClient({ initial }: { initial: Template[] }) {
 
                 {open && expandedDraft ? (
                   <div className="tpl-body space-y-3">
-                    <div>
-                      <label className="label">Name</label>
-                      <input
-                        className="field"
-                        value={expandedDraft.name}
-                        onChange={(e) => patch(t.id, { name: e.target.value })}
-                      />
-                    </div>
-                    <div>
-                      <label className="label">Subject</label>
-                      <input
-                        className="field"
-                        value={expandedDraft.subject}
-                        onChange={(e) => patch(t.id, { subject: e.target.value })}
-                      />
-                    </div>
-                    <div>
-                      <label className="label">Body</label>
-                      <RichEditor
-                        value={expandedDraft.bodyHtml}
-                        onChange={(html) => patch(t.id, { bodyHtml: html })}
-                      />
-                    </div>
+                    <div className="space-y-3 desktop-split">
+                      <div className="space-y-3">
+                        <div>
+                          <label className="label">Name</label>
+                          <input
+                            className="field"
+                            value={expandedDraft.name}
+                            onChange={(e) => patch(t.id, { name: e.target.value })}
+                          />
+                        </div>
+                        <div>
+                          <label className="label">Subject</label>
+                          <input
+                            className="field"
+                            value={expandedDraft.subject}
+                            onChange={(e) => patch(t.id, { subject: e.target.value })}
+                          />
+                        </div>
+                        <div>
+                          <label className="label">Body</label>
+                          <RichEditor
+                            value={expandedDraft.bodyHtml}
+                            onChange={(html) => patch(t.id, { bodyHtml: html })}
+                          />
+                        </div>
 
-                    <div className="tpl-actions">
-                      <BusyButton
-                        type="button"
-                        className="btn btn-primary"
-                        busy={actionBusy === `save:${t.id}`}
-                        busyLabel="Saving…"
-                        disabled={anyBusy && actionBusy !== `save:${t.id}`}
-                        onClick={() => save(t.id)}
-                      >
-                        Save
-                      </BusyButton>
-                      {!t.isDefault ? (
-                        <BusyButton
-                          type="button"
-                          className="btn btn-ghost"
-                          busy={actionBusy === `default:${t.id}`}
-                          busyLabel="…"
-                          disabled={anyBusy && actionBusy !== `default:${t.id}`}
-                          onClick={() => setDefault(t.id)}
-                        >
-                          Set default
-                        </BusyButton>
-                      ) : (
-                        <span className="self-center text-xs text-[var(--muted)]">Current default</span>
-                      )}
-                      <BusyButton
-                        type="button"
-                        className="btn btn-ghost"
-                        busy={actionBusy === `dup:${t.id}`}
-                        busyLabel="…"
-                        disabled={anyBusy && actionBusy !== `dup:${t.id}`}
-                        onClick={() => duplicate(t.id)}
-                      >
-                        Duplicate
-                      </BusyButton>
-                      <button
-                        type="button"
-                        className="btn btn-ghost"
-                        disabled={anyBusy}
-                        onClick={() => resetLocal(t.id)}
-                      >
-                        Reset
-                      </button>
-                      <BusyButton
-                        type="button"
-                        className="btn btn-ghost text-[var(--danger)]"
-                        busy={actionBusy === `del:${t.id}`}
-                        busyLabel="Deleting…"
-                        disabled={anyBusy && actionBusy !== `del:${t.id}`}
-                        onClick={() => remove(t.id)}
-                      >
-                        Delete
-                      </BusyButton>
-                    </div>
-
-                    {preview ? (
-                      <div className="mail-preview">
-                        <p className="mail-preview-meta">Sample preview</p>
-                        <h3>{preview.subject}</h3>
-                        <div
-                          className="mail-preview-body"
-                          dangerouslySetInnerHTML={{ __html: preview.bodyHtml }}
-                        />
+                        <div className="tpl-actions">
+                          <BusyButton
+                            type="button"
+                            className="btn btn-primary"
+                            busy={actionBusy === `save:${t.id}`}
+                            busyLabel="Saving…"
+                            disabled={anyBusy && actionBusy !== `save:${t.id}`}
+                            onClick={() => save(t.id)}
+                          >
+                            Save
+                          </BusyButton>
+                          {!t.isDefault ? (
+                            <BusyButton
+                              type="button"
+                              className="btn btn-ghost"
+                              busy={actionBusy === `default:${t.id}`}
+                              busyLabel="…"
+                              disabled={anyBusy && actionBusy !== `default:${t.id}`}
+                              onClick={() => setDefault(t.id)}
+                            >
+                              Set default
+                            </BusyButton>
+                          ) : (
+                            <span className="self-center text-xs text-[var(--muted)]">Current default</span>
+                          )}
+                          <BusyButton
+                            type="button"
+                            className="btn btn-ghost"
+                            busy={actionBusy === `dup:${t.id}`}
+                            busyLabel="…"
+                            disabled={anyBusy && actionBusy !== `dup:${t.id}`}
+                            onClick={() => duplicate(t.id)}
+                          >
+                            Duplicate
+                          </BusyButton>
+                          <button
+                            type="button"
+                            className="btn btn-ghost"
+                            disabled={anyBusy}
+                            onClick={() => resetLocal(t.id)}
+                          >
+                            Reset
+                          </button>
+                          <BusyButton
+                            type="button"
+                            className="btn btn-ghost text-[var(--danger)]"
+                            busy={actionBusy === `del:${t.id}`}
+                            busyLabel="Deleting…"
+                            disabled={anyBusy && actionBusy !== `del:${t.id}`}
+                            onClick={() => remove(t.id)}
+                          >
+                            Delete
+                          </BusyButton>
+                        </div>
                       </div>
-                    ) : null}
+
+                      {preview ? (
+                        <div className="mail-preview desktop-sticky">
+                          <p className="mail-preview-meta">Sample preview</p>
+                          <h3>{preview.subject}</h3>
+                          <div
+                            className="mail-preview-body"
+                            dangerouslySetInnerHTML={{ __html: preview.bodyHtml }}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 ) : null}
               </li>

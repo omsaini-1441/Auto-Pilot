@@ -15,6 +15,14 @@ type JobRow = {
   _count: { contacts: number; drafts: number };
 };
 
+function formatUpdated(iso: string) {
+  try {
+    return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  } catch {
+    return "";
+  }
+}
+
 export function JobList({ initial }: { initial: JobRow[] }) {
   const router = useRouter();
   const [jobs, setJobs] = useState(initial);
@@ -74,9 +82,12 @@ export function JobList({ initial }: { initial: JobRow[] }) {
         <div className="card text-center text-sm text-[var(--muted)]">No jobs in this filter.</div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white/90">
-          <div className="grid grid-cols-[1fr_auto] gap-2 border-b border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--muted)]">
+          <div className="grid grid-cols-[1fr_auto] gap-2 border-b border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-[var(--muted)] lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)_5.5rem_4.5rem_5.5rem] lg:gap-3 lg:px-4">
             <span>Job</span>
-            <span>Outreached</span>
+            <span className="hidden lg:block">Role / location</span>
+            <span className="hidden text-right lg:block">Contacts</span>
+            <span className="hidden text-right lg:block">Drafts</span>
+            <span className="text-right lg:text-center">Outreached</span>
           </div>
           <ul className="divide-y divide-[var(--border)]">
             {visible.map((job) => {
@@ -84,41 +95,60 @@ export function JobList({ initial }: { initial: JobRow[] }) {
               const busy = busyId === job.id;
               return (
                 <li key={job.id}>
-                  <div className="grid grid-cols-[1fr_auto] items-center gap-2 px-3 py-3">
+                  <div className="grid grid-cols-[1fr_auto] items-center gap-2 px-3 py-3 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1.2fr)_5.5rem_4.5rem_5.5rem] lg:gap-3 lg:px-4">
                     <Link href={`/jobs/${job.id}`} className="min-w-0">
                       <p className="truncate font-semibold text-[var(--ink)]">{job.company || "Unknown company"}</p>
-                      <p className="truncate text-sm text-[var(--muted)]">
+                      <p className="truncate text-sm text-[var(--muted)] lg:hidden">
                         {job.role || "Role TBD"}
                         {job.location ? ` · ${job.location}` : ""}
                       </p>
-                      <p className="mt-1 text-xs text-[var(--muted)]">
+                      <p className="mt-1 text-xs text-[var(--muted)] lg:hidden">
                         {job._count.contacts} contacts · {job._count.drafts} drafts · {job.status}
                       </p>
+                      <p className="mt-1 hidden text-xs text-[var(--muted)] lg:block">
+                        {job.status}
+                        {job.updatedAt ? ` · ${formatUpdated(job.updatedAt)}` : ""}
+                      </p>
                     </Link>
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={outreached}
-                      aria-busy={busy || undefined}
-                      disabled={busy}
-                      onClick={(e) => toggleOutreached(job, e)}
-                      className={`relative h-7 w-12 shrink-0 rounded-full transition ${
-                        outreached ? "bg-[var(--accent)]" : "bg-[var(--border)]"
-                      } ${busy ? "switch-busy" : ""}`}
-                      title={outreached ? "Mark as not outreached" : "Mark outreached"}
+                    <Link
+                      href={`/jobs/${job.id}`}
+                      className="hidden min-w-0 lg:block"
                     >
-                      {busy ? (
-                        <span className="absolute inset-0 flex items-center justify-center">
-                          <Spinner size="sm" className="text-[var(--ink)]" />
-                        </span>
-                      ) : (
-                        <span
-                          className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition ${
-                            outreached ? "translate-x-5" : ""
-                          }`}
-                        />
-                      )}
-                    </button>
+                      <p className="truncate text-sm text-[var(--ink)]">{job.role || "Role TBD"}</p>
+                      <p className="truncate text-xs text-[var(--muted)]">{job.location || "—"}</p>
+                    </Link>
+                    <p className="hidden text-right text-sm tabular-nums text-[var(--muted)] lg:block">
+                      {job._count.contacts}
+                    </p>
+                    <p className="hidden text-right text-sm tabular-nums text-[var(--muted)] lg:block">
+                      {job._count.drafts}
+                    </p>
+                    <div className="flex justify-end lg:justify-center">
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={outreached}
+                        aria-busy={busy || undefined}
+                        disabled={busy}
+                        onClick={(e) => toggleOutreached(job, e)}
+                        className={`relative h-7 w-12 shrink-0 rounded-full transition ${
+                          outreached ? "bg-[var(--accent)]" : "bg-[var(--border)]"
+                        } ${busy ? "switch-busy" : ""}`}
+                        title={outreached ? "Mark as not outreached" : "Mark outreached"}
+                      >
+                        {busy ? (
+                          <span className="absolute inset-0 flex items-center justify-center">
+                            <Spinner size="sm" className="text-[var(--ink)]" />
+                          </span>
+                        ) : (
+                          <span
+                            className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition ${
+                              outreached ? "translate-x-5" : ""
+                            }`}
+                          />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </li>
               );

@@ -78,7 +78,7 @@ export default function NewJobPage() {
         <p className="text-sm text-[var(--muted)]">Link and/or text dump → AI extract → confirm</p>
       </div>
 
-      <form onSubmit={save} className="space-y-4">
+      <form onSubmit={save} className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0">
         <div className="card space-y-3">
           <div>
             <label className="label" htmlFor="url">
@@ -99,7 +99,7 @@ export default function NewJobPage() {
             </label>
             <textarea
               id="dump"
-              className="field min-h-[120px]"
+              className="field min-h-[120px] lg:min-h-[200px]"
               value={sourceText}
               onChange={(e) => setSourceText(e.target.value)}
               placeholder="Paste LinkedIn / careers post text here"
@@ -125,28 +125,30 @@ export default function NewJobPage() {
             </label>
             <input id="company" className="field" value={company} onChange={(e) => setCompany(e.target.value)} required />
           </div>
-          <div>
-            <label className="label" htmlFor="role">
-              Role
-            </label>
-            <input id="role" className="field" value={role} onChange={(e) => setRole(e.target.value)} />
-          </div>
-          <div>
-            <label className="label" htmlFor="location">
-              Location
-            </label>
-            <input id="location" className="field" value={location} onChange={(e) => setLocation(e.target.value)} />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className="label" htmlFor="role">
+                Role
+              </label>
+              <input id="role" className="field" value={role} onChange={(e) => setRole(e.target.value)} />
+            </div>
+            <div>
+              <label className="label" htmlFor="location">
+                Location
+              </label>
+              <input id="location" className="field" value={location} onChange={(e) => setLocation(e.target.value)} />
+            </div>
           </div>
           <div>
             <label className="label" htmlFor="notes">
               Notes
             </label>
-            <textarea id="notes" className="field min-h-[72px]" value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <textarea id="notes" className="field min-h-[72px] lg:min-h-[120px]" value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
         </div>
 
         <BusyButton
-          className="btn btn-primary w-full"
+          className="btn btn-primary w-full lg:col-span-2 lg:max-w-xs"
           type="submit"
           busy={submitBusy}
           busyLabel={opening ? "Opening job…" : "Saving…"}
