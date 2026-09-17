@@ -10,18 +10,25 @@ Full write-ups live in **[docs/](./docs/README.md)**:
 - [Tech stack](./docs/tech-stack.md) — Next.js, Prisma, TipTap, Gemini
 - [Workflow](./docs/workflow.md) — job → contacts → draft → Gmail
 - [Apollo](./docs/apollo.md) — account rotate + people search redirect
+- [Deploy to Vercel](./docs/deploy-vercel.md) — Neon Postgres + env vars
 - [Setup](./docs/setup.md) — install & env
 - [Data model](./docs/data-model.md) — entities & APIs
 
 ## Quick start
 
+Uses **Postgres** (Neon free tier is fine). Set `DATABASE_URL` in `.env`, then:
+
 ```bash
 npm install
-npx prisma migrate dev
+npx prisma migrate deploy
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000). Default password: `outreach` (from `.env` `SOLO_PASSWORD`).
+
+## Deploy
+
+See **[docs/deploy-vercel.md](./docs/deploy-vercel.md)** for the full Vercel + Neon checklist.
 
 ## Setup Gemini extract
 

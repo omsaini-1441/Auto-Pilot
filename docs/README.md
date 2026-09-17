@@ -9,5 +9,6 @@ Human-readable docs for the Auto-Pilot / Outreach app.
 | [Workflow](./workflow.md) | End-to-end user flow (job → contacts → draft → Gmail) |
 | [Setup](./setup.md) | Install, env vars, running locally |
 | [Apollo](./apollo.md) | Free accounts, redirect vs API |
+| [Deploy (Vercel)](./deploy-vercel.md) | Neon Postgres + Vercel env + go-live |
 
 Start with **Overview**, then **Workflow** if you want the product story; use **Setup** to run it.

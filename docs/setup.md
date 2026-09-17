@@ -4,6 +4,7 @@
 
 - Node.js 20+ recommended
 - npm
+- A **Postgres** database ([Neon](https://neon.tech) free tier is enough)
 - (Optional) Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey)
 
 ## Install
@@ -11,7 +12,13 @@
 ```bash
 npm install
 cp .env.example .env   # Windows: copy .env.example .env
-npx prisma migrate dev
+```
+
+Edit `.env` — set `DATABASE_URL` to your Neon (or other Postgres) URL, then:
+
+```bash
+npx prisma migrate deploy
+npx prisma generate
 npm run dev
 ```
 
@@ -21,41 +28,38 @@ Default login password: **`outreach`** (override with `SOLO_PASSWORD`).
 
 ## Environment variables
 
-Copy from `.env.example`:
-
 | Variable | Purpose | Example |
 |---|---|---|
-| `DATABASE_URL` | Prisma DB | `file:./dev.db` |
+| `DATABASE_URL` | Postgres connection string | `postgresql://…?sslmode=require` |
 | `AUTH_SECRET` | Signs the session cookie | long random string |
 | `SOLO_PASSWORD` | Login password | `outreach` |
-| `GEMINI_API_KEY` | AI job extract | from AI Studio |
-| `GEMINI_MODEL` | Model id | `gemini-3.5-flash-lite` (free-tier friendly) |
+| `GEMINI_API_KEY` | AI job extract / templates | from AI Studio |
+| `GEMINI_MODEL` | Model id | `gemini-3.5-flash-lite` |
 
 ### Without Gemini
 
-You can still use the full pipeline. On Add job, skip **Extract with AI** and type company / role / location yourself. Extract may also guess a weak company name from the URL host.
+You can still use the full pipeline. On Add job, skip **Extract with AI** and type company / role / location yourself.
 
 ### Changing the password after first run
 
-The first login seeds a user with a hash of `SOLO_PASSWORD`. Changing `.env` later does **not** automatically update an existing hash. For local solo use, easiest reset is delete `prisma/dev.db` and re-run `npx prisma migrate dev` (wipes data), or update the password hash in code/DB deliberately.
+The first login seeds a user with a hash of `SOLO_PASSWORD`. Changing `.env` later does **not** automatically update an existing hash. Easiest reset: delete the `User` row in the DB (or recreate the Neon database) and log in again.
 
 ## Useful scripts
 
 | Command | What it does |
 |---|---|
 | `npm run dev` | Dev server |
-| `npm run build` | Production build |
+| `npm run build` | `prisma generate` + `migrate deploy` + Next build |
 | `npm run start` | Run production build |
-| `npm run db:migrate` | Prisma migrate |
+| `npm run db:deploy` | Apply migrations (`migrate deploy`) |
+| `npm run db:migrate` | Create migrations in development |
 | `npm run db:push` | Push schema without migration files |
 
-## Deploy notes (later)
+## Deploy
 
-- Hosting: Vercel (or similar) works with Next.js.
-- SQLite on serverless is awkward; switch `DATABASE_URL` to Postgres (Neon/Supabase/etc.) before serious cloud deploy.
-- Set the same env vars in the host dashboard; never commit `.env`.
+See **[deploy-vercel.md](./deploy-vercel.md)**.
 
 ## Phone testing
 
-- Same Wi‑Fi: open the Network URL printed by `next dev` (e.g. `http://192.168.x.x:3000`).
-- Use Chrome → Add to Home Screen for a more app-like feel (`manifest.webmanifest` is included).
+- Same Wi‑Fi: open the Network URL printed by `next dev`.
+- Or use your Vercel URL after deploy.
