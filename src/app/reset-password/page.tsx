@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
+import { BusyButton } from "@/components/ui/BusyButton";
+import { FormCardSkeleton } from "@/components/ui/Skeleton";
+import { Spinner } from "@/components/ui/Spinner";
 
 function ResetForm() {
   const router = useRouter();
@@ -25,19 +28,24 @@ function ResetForm() {
       return;
     }
     setLoading(true);
-    const res = await fetch("/api/auth/reset", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, password }),
-    });
-    const data = await res.json().catch(() => ({}));
-    setLoading(false);
-    if (!res.ok) {
-      setError(typeof data.error === "string" ? data.error : "Reset failed");
-      return;
+    try {
+      const res = await fetch("/api/auth/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(typeof data.error === "string" ? data.error : "Reset failed");
+        setLoading(false);
+        return;
+      }
+      router.push("/");
+      router.refresh();
+    } catch {
+      setError("Reset failed");
+      setLoading(false);
     }
-    router.push("/");
-    router.refresh();
   }
 
   if (!token) {
@@ -84,9 +92,9 @@ function ResetForm() {
         />
       </div>
       {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
-      <button className="btn btn-primary w-full" type="submit" disabled={loading}>
-        {loading ? "Updating…" : "Update password & sign in"}
-      </button>
+      <BusyButton className="btn btn-primary w-full" type="submit" busy={loading} busyLabel="Updating…">
+        Update password & sign in
+      </BusyButton>
       <Link href="/login" className="block text-center text-sm text-[var(--accent)] underline">
         Back to sign in
       </Link>
@@ -102,7 +110,16 @@ export default function ResetPasswordPage() {
         <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl leading-tight">Reset password</h1>
         <p className="mt-2 max-w-sm text-[var(--muted)]">Choose a new password (at least 12 characters).</p>
       </div>
-      <Suspense fallback={<div className="card text-sm text-[var(--muted)]">Loading…</div>}>
+      <Suspense
+        fallback={
+          <div className="relative">
+            <FormCardSkeleton fields={2} />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Spinner size="md" label="Loading form" />
+            </div>
+          </div>
+        }
+      >
         <ResetForm />
       </Suspense>
     </div>

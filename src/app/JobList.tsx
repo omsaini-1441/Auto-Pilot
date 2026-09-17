@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { Spinner } from "@/components/ui/Spinner";
 
 type JobRow = {
   id: string;
@@ -18,6 +19,7 @@ export function JobList({ initial }: { initial: JobRow[] }) {
   const router = useRouter();
   const [jobs, setJobs] = useState(initial);
   const [filter, setFilter] = useState<"all" | "active" | "outreached">("all");
+  const [busyId, setBusyId] = useState("");
 
   const visible = useMemo(() => {
     if (filter === "outreached") return jobs.filter((j) => j.status === "outreached");
@@ -28,15 +30,21 @@ export function JobList({ initial }: { initial: JobRow[] }) {
   async function toggleOutreached(job: JobRow, e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
+    if (busyId) return;
     const next = job.status === "outreached" ? "researching" : "outreached";
-    const res = await fetch(`/api/jobs/${job.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: next }),
-    });
-    if (!res.ok) return;
-    setJobs((prev) => prev.map((j) => (j.id === job.id ? { ...j, status: next } : j)));
-    router.refresh();
+    setBusyId(job.id);
+    try {
+      const res = await fetch(`/api/jobs/${job.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: next }),
+      });
+      if (!res.ok) return;
+      setJobs((prev) => prev.map((j) => (j.id === job.id ? { ...j, status: next } : j)));
+      router.refresh();
+    } finally {
+      setBusyId("");
+    }
   }
 
   return (
@@ -73,6 +81,7 @@ export function JobList({ initial }: { initial: JobRow[] }) {
           <ul className="divide-y divide-[var(--border)]">
             {visible.map((job) => {
               const outreached = job.status === "outreached";
+              const busy = busyId === job.id;
               return (
                 <li key={job.id}>
                   <div className="grid grid-cols-[1fr_auto] items-center gap-2 px-3 py-3">
@@ -90,17 +99,25 @@ export function JobList({ initial }: { initial: JobRow[] }) {
                       type="button"
                       role="switch"
                       aria-checked={outreached}
+                      aria-busy={busy || undefined}
+                      disabled={busy}
                       onClick={(e) => toggleOutreached(job, e)}
                       className={`relative h-7 w-12 shrink-0 rounded-full transition ${
                         outreached ? "bg-[var(--accent)]" : "bg-[var(--border)]"
-                      }`}
+                      } ${busy ? "switch-busy" : ""}`}
                       title={outreached ? "Mark as not outreached" : "Mark outreached"}
                     >
-                      <span
-                        className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition ${
-                          outreached ? "translate-x-5" : ""
-                        }`}
-                      />
+                      {busy ? (
+                        <span className="absolute inset-0 flex items-center justify-center">
+                          <Spinner size="sm" className="text-[var(--ink)]" />
+                        </span>
+                      ) : (
+                        <span
+                          className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition ${
+                            outreached ? "translate-x-5" : ""
+                          }`}
+                        />
+                      )}
                     </button>
                   </div>
                 </li>

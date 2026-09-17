@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BusyButton } from "@/components/ui/BusyButton";
 
 type Profile = {
   fullName: string;
@@ -22,13 +23,16 @@ export function ProfileForm({ initial }: { initial: Profile }) {
     e.preventDefault();
     setSaving(true);
     setSaved(false);
-    await fetch("/api/profile", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    setSaving(false);
-    setSaved(true);
+    try {
+      await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      setSaved(true);
+    } finally {
+      setSaving(false);
+    }
   }
 
   function set<K extends keyof Profile>(key: K, value: Profile[K]) {
@@ -92,9 +96,9 @@ export function ProfileForm({ initial }: { initial: Profile }) {
           onChange={(e) => set("autofillJson", e.target.value)}
         />
       </div>
-      <button className="btn btn-primary w-full" type="submit" disabled={saving}>
-        {saving ? "Saving…" : "Save profile"}
-      </button>
+      <BusyButton className="btn btn-primary w-full" type="submit" busy={saving} busyLabel="Saving…">
+        Save profile
+      </BusyButton>
       {saved ? <p className="text-sm text-[var(--accent)]">Saved</p> : null}
     </form>
   );

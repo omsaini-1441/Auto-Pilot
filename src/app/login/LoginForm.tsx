@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { BusyButton } from "@/components/ui/BusyButton";
 
 export function LoginForm() {
   const router = useRouter();
@@ -15,19 +16,24 @@ export function LoginForm() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const res = await fetch("/api/auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json().catch(() => ({}));
-    setLoading(false);
-    if (!res.ok) {
-      setError(typeof data.error === "string" ? data.error : "Invalid email or password");
-      return;
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(typeof data.error === "string" ? data.error : "Invalid email or password");
+        setLoading(false);
+        return;
+      }
+      router.push("/");
+      router.refresh();
+    } catch {
+      setError("Could not sign in");
+      setLoading(false);
     }
-    router.push("/");
-    router.refresh();
   }
 
   return (
@@ -63,9 +69,9 @@ export function LoginForm() {
         />
       </div>
       {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
-      <button className="btn btn-primary w-full" disabled={loading} type="submit">
-        {loading ? "Signing in…" : "Sign in"}
-      </button>
+      <BusyButton className="btn btn-primary w-full" type="submit" busy={loading} busyLabel="Signing in…">
+        Sign in
+      </BusyButton>
       <div className="flex items-center justify-between gap-3 text-xs">
         <Link href="/forgot-password" className="text-[var(--accent)] underline">
           Forgot password?

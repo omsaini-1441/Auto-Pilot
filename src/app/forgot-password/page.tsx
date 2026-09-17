@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { BusyButton } from "@/components/ui/BusyButton";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -16,19 +17,22 @@ export default function ForgotPasswordPage() {
     setError("");
     setMsg("");
     setDevLink("");
-    const res = await fetch("/api/auth/forgot", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    const data = await res.json().catch(() => ({}));
-    setLoading(false);
-    if (!res.ok) {
-      setError(typeof data.error === "string" ? data.error : "Request failed");
-      return;
+    try {
+      const res = await fetch("/api/auth/forgot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(typeof data.error === "string" ? data.error : "Request failed");
+        return;
+      }
+      setMsg(data.message || "If that email is registered, a reset link has been sent.");
+      if (typeof data.devResetUrl === "string") setDevLink(data.devResetUrl);
+    } finally {
+      setLoading(false);
     }
-    setMsg(data.message || "If that email is registered, a reset link has been sent.");
-    if (typeof data.devResetUrl === "string") setDevLink(data.devResetUrl);
   }
 
   return (
@@ -65,9 +69,9 @@ export default function ForgotPasswordPage() {
             </Link>
           </p>
         ) : null}
-        <button className="btn btn-primary w-full" type="submit" disabled={loading}>
-          {loading ? "Sending…" : "Send reset link"}
-        </button>
+        <BusyButton className="btn btn-primary w-full" type="submit" busy={loading} busyLabel="Sending…">
+          Send reset link
+        </BusyButton>
         <Link href="/login" className="block text-center text-sm text-[var(--accent)] underline">
           Back to sign in
         </Link>

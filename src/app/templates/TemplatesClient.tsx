@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { BusyButton } from "@/components/ui/BusyButton";
 import { RichEditor } from "@/components/RichEditor";
 import { fillPlaceholders, PLACEHOLDER_HELP } from "@/lib/placeholders";
 
@@ -32,8 +33,7 @@ export function TemplatesClient({ initial }: { initial: Template[] }) {
   const [templates, setTemplates] = useState(initial);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, Template>>({});
-  const [savingId, setSavingId] = useState("");
-  const [aiBusy, setAiBusy] = useState(false);
+  const [actionBusy, setActionBusy] = useState("");
   const [msg, setMsg] = useState("");
   const [showPlaceholders, setShowPlaceholders] = useState(false);
 
@@ -61,80 +61,101 @@ export function TemplatesClient({ initial }: { initial: Template[] }) {
 
   async function createNew() {
     setMsg("");
-    const res = await fetch("/api/templates", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: "New template",
-        subject: STARTER.subject,
-        bodyHtml: STARTER.bodyHtml,
-        isDefault: templates.length === 0,
-      }),
-    });
-    const data = await res.json();
-    await reload(data.template.id);
-    setMsg("Template created");
+    setActionBusy("new");
+    try {
+      const res = await fetch("/api/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "New template",
+          subject: STARTER.subject,
+          bodyHtml: STARTER.bodyHtml,
+          isDefault: templates.length === 0,
+        }),
+      });
+      const data = await res.json();
+      await reload(data.template.id);
+      setMsg("Template created");
+    } finally {
+      setActionBusy("");
+    }
   }
 
   async function createAi() {
-    setAiBusy(true);
+    setActionBusy("ai");
     setMsg("");
-    const res = await fetch("/api/templates/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ save: true }),
-    });
-    const data = await res.json();
-    setAiBusy(false);
-    if (!res.ok) {
-      setMsg("AI generate failed");
-      return;
+    try {
+      const res = await fetch("/api/templates/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ save: true }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMsg("AI generate failed");
+        return;
+      }
+      await reload(data.template?.id);
+      setMsg(data.notes || "AI template saved");
+    } finally {
+      setActionBusy("");
     }
-    await reload(data.template?.id);
-    setMsg(data.notes || "AI template saved");
   }
 
   async function save(id: string) {
     const t = draftFor(templates.find((x) => x.id === id)!);
-    setSavingId(id);
+    setActionBusy(`save:${id}`);
     setMsg("");
-    await fetch(`/api/templates/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(t),
-    });
-    setSavingId("");
-    await reload(id);
-    setMsg("Saved");
+    try {
+      await fetch(`/api/templates/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(t),
+      });
+      await reload(id);
+      setMsg("Saved");
+    } finally {
+      setActionBusy("");
+    }
   }
 
   async function setDefault(id: string) {
     setMsg("");
-    await fetch(`/api/templates/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isDefault: true }),
-    });
-    await reload(id);
-    setMsg("Default updated");
+    setActionBusy(`default:${id}`);
+    try {
+      await fetch(`/api/templates/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isDefault: true }),
+      });
+      await reload(id);
+      setMsg("Default updated");
+    } finally {
+      setActionBusy("");
+    }
   }
 
   async function duplicate(id: string) {
     const t = draftFor(templates.find((x) => x.id === id)!);
     setMsg("");
-    const res = await fetch("/api/templates", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: `${t.name} copy`,
-        subject: t.subject,
-        bodyHtml: t.bodyHtml,
-        isDefault: false,
-      }),
-    });
-    const data = await res.json();
-    await reload(data.template.id);
-    setMsg("Duplicated");
+    setActionBusy(`dup:${id}`);
+    try {
+      const res = await fetch("/api/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: `${t.name} copy`,
+          subject: t.subject,
+          bodyHtml: t.bodyHtml,
+          isDefault: false,
+        }),
+      });
+      const data = await res.json();
+      await reload(data.template.id);
+      setMsg("Duplicated");
+    } finally {
+      setActionBusy("");
+    }
   }
 
   function resetLocal(id: string) {
@@ -152,16 +173,22 @@ export function TemplatesClient({ initial }: { initial: Template[] }) {
     if (!t) return;
     if (!confirm(`Delete “${t.name}”? This cannot be undone.`)) return;
     setMsg("");
-    await fetch(`/api/templates/${id}`, { method: "DELETE" });
-    await reload();
-    setExpandedId(null);
-    setMsg("Deleted");
+    setActionBusy(`del:${id}`);
+    try {
+      await fetch(`/api/templates/${id}`, { method: "DELETE" });
+      await reload();
+      setExpandedId(null);
+      setMsg("Deleted");
+    } finally {
+      setActionBusy("");
+    }
   }
 
   function toggleExpand(id: string) {
     setExpandedId((prev) => (prev === id ? null : id));
   }
 
+  const anyBusy = Boolean(actionBusy);
   const expanded = templates.find((t) => t.id === expandedId) || null;
   const expandedDraft = expanded ? draftFor(expanded) : null;
 
@@ -199,12 +226,26 @@ export function TemplatesClient({ initial }: { initial: Template[] }) {
           </p>
         </div>
         <div className="flex gap-2">
-          <button type="button" className="btn btn-ghost text-sm px-3" onClick={createAi} disabled={aiBusy}>
-            {aiBusy ? "AI…" : "AI"}
-          </button>
-          <button type="button" className="btn btn-accent text-sm px-3" onClick={createNew}>
+          <BusyButton
+            type="button"
+            className="btn btn-ghost text-sm px-3"
+            onClick={createAi}
+            busy={actionBusy === "ai"}
+            busyLabel="AI…"
+            disabled={anyBusy && actionBusy !== "ai"}
+          >
+            AI
+          </BusyButton>
+          <BusyButton
+            type="button"
+            className="btn btn-accent text-sm px-3"
+            onClick={createNew}
+            busy={actionBusy === "new"}
+            busyLabel="…"
+            disabled={anyBusy && actionBusy !== "new"}
+          >
             New
-          </button>
+          </BusyButton>
         </div>
       </div>
 
@@ -215,12 +256,26 @@ export function TemplatesClient({ initial }: { initial: Template[] }) {
           <p className="font-medium">No templates yet</p>
           <p className="mt-1 text-sm text-[var(--muted)]">Create one or generate with AI.</p>
           <div className="mt-4 flex gap-2 justify-center">
-            <button type="button" className="btn btn-ghost" onClick={createAi} disabled={aiBusy}>
+            <BusyButton
+              type="button"
+              className="btn btn-ghost"
+              onClick={createAi}
+              busy={actionBusy === "ai"}
+              busyLabel="Writing…"
+              disabled={anyBusy && actionBusy !== "ai"}
+            >
               AI draft
-            </button>
-            <button type="button" className="btn btn-primary" onClick={createNew}>
+            </BusyButton>
+            <BusyButton
+              type="button"
+              className="btn btn-primary"
+              onClick={createNew}
+              busy={actionBusy === "new"}
+              busyLabel="Creating…"
+              disabled={anyBusy && actionBusy !== "new"}
+            >
               New template
-            </button>
+            </BusyButton>
           </div>
         </div>
       ) : (
@@ -274,34 +329,58 @@ export function TemplatesClient({ initial }: { initial: Template[] }) {
                     </div>
 
                     <div className="tpl-actions">
-                      <button
+                      <BusyButton
                         type="button"
                         className="btn btn-primary"
-                        disabled={savingId === t.id}
+                        busy={actionBusy === `save:${t.id}`}
+                        busyLabel="Saving…"
+                        disabled={anyBusy && actionBusy !== `save:${t.id}`}
                         onClick={() => save(t.id)}
                       >
-                        {savingId === t.id ? "Saving…" : "Save"}
-                      </button>
+                        Save
+                      </BusyButton>
                       {!t.isDefault ? (
-                        <button type="button" className="btn btn-ghost" onClick={() => setDefault(t.id)}>
+                        <BusyButton
+                          type="button"
+                          className="btn btn-ghost"
+                          busy={actionBusy === `default:${t.id}`}
+                          busyLabel="…"
+                          disabled={anyBusy && actionBusy !== `default:${t.id}`}
+                          onClick={() => setDefault(t.id)}
+                        >
                           Set default
-                        </button>
+                        </BusyButton>
                       ) : (
                         <span className="self-center text-xs text-[var(--muted)]">Current default</span>
                       )}
-                      <button type="button" className="btn btn-ghost" onClick={() => duplicate(t.id)}>
+                      <BusyButton
+                        type="button"
+                        className="btn btn-ghost"
+                        busy={actionBusy === `dup:${t.id}`}
+                        busyLabel="…"
+                        disabled={anyBusy && actionBusy !== `dup:${t.id}`}
+                        onClick={() => duplicate(t.id)}
+                      >
                         Duplicate
-                      </button>
-                      <button type="button" className="btn btn-ghost" onClick={() => resetLocal(t.id)}>
-                        Reset
-                      </button>
+                      </BusyButton>
                       <button
                         type="button"
+                        className="btn btn-ghost"
+                        disabled={anyBusy}
+                        onClick={() => resetLocal(t.id)}
+                      >
+                        Reset
+                      </button>
+                      <BusyButton
+                        type="button"
                         className="btn btn-ghost text-[var(--danger)]"
+                        busy={actionBusy === `del:${t.id}`}
+                        busyLabel="Deleting…"
+                        disabled={anyBusy && actionBusy !== `del:${t.id}`}
                         onClick={() => remove(t.id)}
                       >
                         Delete
-                      </button>
+                      </BusyButton>
                     </div>
 
                     {preview ? (

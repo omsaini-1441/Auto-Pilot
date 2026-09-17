@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { BusyButton } from "@/components/ui/BusyButton";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -20,19 +21,24 @@ export default function SignupPage() {
       return;
     }
     setLoading(true);
-    const res = await fetch("/api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json().catch(() => ({}));
-    setLoading(false);
-    if (!res.ok) {
-      setError(typeof data.error === "string" ? data.error : "Could not create account");
-      return;
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(typeof data.error === "string" ? data.error : "Could not create account");
+        setLoading(false);
+        return;
+      }
+      router.push("/");
+      router.refresh();
+    } catch {
+      setError("Could not create account");
+      setLoading(false);
     }
-    router.push("/");
-    router.refresh();
   }
 
   return (
@@ -96,9 +102,9 @@ export default function SignupPage() {
           />
         </div>
         {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
-        <button className="btn btn-primary w-full" disabled={loading} type="submit">
-          {loading ? "Creating…" : "Create account"}
-        </button>
+        <BusyButton className="btn btn-primary w-full" type="submit" busy={loading} busyLabel="Creating…">
+          Create account
+        </BusyButton>
         <p className="text-center text-xs text-[var(--muted)]">
           Already have an account?{" "}
           <Link href="/login" className="text-[var(--accent)] underline">

@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useState, useTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { Spinner } from "@/components/ui/Spinner";
 
 const links = [
   { href: "/", label: "Jobs", match: (p: string) => p === "/" },
@@ -28,6 +28,8 @@ export function AppNav() {
   const title = pageTitle(pathname);
   const menuId = useId();
   const [open, setOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [pending, startTransition] = useTransition();
 
   useEffect(() => {
     setOpen(false);
@@ -47,15 +49,28 @@ export function AppNav() {
     };
   }, [open]);
 
-  async function logout() {
+  function navigate(href: string) {
     setOpen(false);
-    await fetch("/api/auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "logout" }),
+    startTransition(() => {
+      router.push(href);
     });
-    router.push("/login");
-    router.refresh();
+  }
+
+  async function logout() {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    setOpen(false);
+    try {
+      await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "logout" }),
+      });
+      router.push("/login");
+      router.refresh();
+    } finally {
+      setLoggingOut(false);
+    }
   }
 
   if (
@@ -69,37 +84,48 @@ export function AppNav() {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur">
+    <header className="relative sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur">
+      {pending ? (
+        <div className="nav-progress" aria-hidden>
+          <div className="nav-progress-bar" />
+        </div>
+      ) : null}
       <div className="mx-auto flex max-w-lg items-center justify-between gap-3 px-4 py-3">
-        <Link
-          href="/"
-          className="min-w-0 truncate font-[family-name:var(--font-display)] text-lg tracking-tight text-[var(--ink)]"
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="min-w-0 truncate text-left font-[family-name:var(--font-display)] text-lg tracking-tight text-[var(--ink)]"
         >
           {title}
-        </Link>
+        </button>
 
-        {/* Desktop / wide: inline links */}
         <nav className="hidden items-center gap-0.5 sm:flex" aria-label="Main">
           {links.map((l) => {
             const active = l.match(pathname);
             return (
-              <Link
+              <button
                 key={l.href}
-                href={l.href}
+                type="button"
+                onClick={() => navigate(l.href)}
                 className={`rounded-md px-2 py-1.5 text-sm ${
                   active ? "bg-[var(--ink)] text-white" : "text-[var(--muted)]"
                 }`}
               >
                 {l.label}
-              </Link>
+              </button>
             );
           })}
-          <button type="button" onClick={logout} className="ml-1 text-xs text-[var(--muted)] underline">
-            Log out
+          <button
+            type="button"
+            onClick={logout}
+            disabled={loggingOut}
+            className="ml-1 inline-flex items-center gap-1.5 text-xs text-[var(--muted)] underline disabled:opacity-55"
+          >
+            {loggingOut ? <Spinner size="sm" /> : null}
+            {loggingOut ? "Logging out…" : "Log out"}
           </button>
         </nav>
 
-        {/* Mobile: hamburger */}
         <button
           type="button"
           className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[var(--border)] bg-white text-[var(--ink)] sm:hidden"
@@ -129,7 +155,6 @@ export function AppNav() {
         </button>
       </div>
 
-      {/* Mobile panel */}
       {open ? (
         <div id={menuId} className="sm:hidden">
           <button
@@ -146,26 +171,28 @@ export function AppNav() {
               {links.map((l) => {
                 const active = l.match(pathname);
                 return (
-                  <Link
+                  <button
                     key={l.href}
-                    href={l.href}
-                    className={`block rounded-md px-3 py-3 text-base ${
+                    type="button"
+                    onClick={() => navigate(l.href)}
+                    className={`block w-full rounded-md px-3 py-3 text-left text-base ${
                       active
                         ? "bg-[var(--ink)] text-white"
                         : "text-[var(--ink)] hover:bg-white/70"
                     }`}
-                    onClick={() => setOpen(false)}
                   >
                     {l.label}
-                  </Link>
+                  </button>
                 );
               })}
               <button
                 type="button"
                 onClick={logout}
-                className="mt-1 block w-full rounded-md px-3 py-3 text-left text-base text-[var(--muted)] underline"
+                disabled={loggingOut}
+                className="mt-1 flex w-full items-center gap-2 rounded-md px-3 py-3 text-left text-base text-[var(--muted)] underline disabled:opacity-55"
               >
-                Log out
+                {loggingOut ? <Spinner size="sm" /> : null}
+                {loggingOut ? "Logging out…" : "Log out"}
               </button>
             </div>
           </nav>

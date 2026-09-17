@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { BusyButton } from "@/components/ui/BusyButton";
 
 export default function NewJobPage() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function NewJobPage() {
   const [extractMeta, setExtractMeta] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [opening, setOpening] = useState(false);
 
   async function extract() {
     setLoading(true);
@@ -41,23 +43,33 @@ export default function NewJobPage() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    const res = await fetch("/api/jobs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        sourceUrl,
-        sourceText,
-        company,
-        role,
-        location,
-        notes,
-        extractMeta: { notes: extractMeta },
-      }),
-    });
-    const data = await res.json();
-    setSaving(false);
-    if (res.ok) router.push(`/jobs/${data.job.id}`);
+    try {
+      const res = await fetch("/api/jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sourceUrl,
+          sourceText,
+          company,
+          role,
+          location,
+          notes,
+          extractMeta: { notes: extractMeta },
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setOpening(true);
+        router.push(`/jobs/${data.job.id}`);
+        return;
+      }
+      setSaving(false);
+    } catch {
+      setSaving(false);
+    }
   }
+
+  const submitBusy = saving || opening;
 
   return (
     <div className="space-y-5">
@@ -93,14 +105,16 @@ export default function NewJobPage() {
               placeholder="Paste LinkedIn / careers post text here"
             />
           </div>
-          <button
+          <BusyButton
             type="button"
             className="btn btn-ghost w-full"
             onClick={extract}
-            disabled={loading || (!sourceUrl && !sourceText)}
+            busy={loading}
+            busyLabel="Extracting…"
+            disabled={submitBusy || (!sourceUrl && !sourceText)}
           >
-            {loading ? "Extracting…" : "Extract with AI"}
-          </button>
+            Extract with AI
+          </BusyButton>
           {extractMeta ? <p className="text-xs text-[var(--muted)]">{extractMeta}</p> : null}
         </div>
 
@@ -131,9 +145,14 @@ export default function NewJobPage() {
           </div>
         </div>
 
-        <button className="btn btn-primary w-full" type="submit" disabled={saving}>
-          {saving ? "Saving…" : "Save job"}
-        </button>
+        <BusyButton
+          className="btn btn-primary w-full"
+          type="submit"
+          busy={submitBusy}
+          busyLabel={opening ? "Opening job…" : "Saving…"}
+        >
+          Save job
+        </BusyButton>
       </form>
     </div>
   );

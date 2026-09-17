@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Spinner } from "@/components/ui/Spinner";
 
 export default function LogoutPage() {
   const router = useRouter();
@@ -27,7 +28,8 @@ export default function LogoutPage() {
   }, [router]);
 
   return (
-    <div className="flex min-h-[50vh] items-center justify-center">
+    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3">
+      {!done ? <Spinner size="md" label="Signing out" /> : null}
       <p className="text-sm text-[var(--muted)]">{done ? "Signed out." : "Signing out…"}</p>
     </div>
   );

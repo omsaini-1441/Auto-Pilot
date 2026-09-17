@@ -39,7 +39,22 @@ export function RichEditor({ value, onChange, placeholder }: Props) {
     }
   }, [value, editor]);
 
-  if (!editor) return <div className="min-h-[160px] rounded-lg border border-[var(--border)] bg-white" />;
+  if (!editor) {
+    return (
+      <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-white" aria-busy="true">
+        <div className="flex flex-wrap gap-1 border-b border-[var(--border)] bg-[var(--surface)] px-2 py-1.5">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="skeleton h-7 w-12 rounded" />
+          ))}
+        </div>
+        <div className="min-h-[160px] space-y-2 px-3 py-3">
+          <div className="skeleton h-3 w-5/6" />
+          <div className="skeleton h-3 w-full" />
+          <div className="skeleton h-3 w-2/3" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-white">

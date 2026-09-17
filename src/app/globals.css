@@ -396,4 +396,102 @@ body {
   gap: 0.5rem;
 }
 
+/* Loading — spinner */
+.spinner {
+  display: inline-block;
+  flex-shrink: 0;
+  border-radius: 999px;
+  border-style: solid;
+  border-color: color-mix(in oklab, currentColor 28%, transparent);
+  border-top-color: currentColor;
+  animation: spin 0.7s linear infinite;
+}
+
+.spinner-sm {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-width: 2px;
+}
+
+.spinner-md {
+  width: 1.15rem;
+  height: 1.15rem;
+  border-width: 2px;
+}
+
+.spinner-lg {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-width: 2.5px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Loading — skeleton */
+.skeleton {
+  border-radius: 0.4rem;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--border) 55%, white) 0%,
+    color-mix(in oklab, var(--surface) 70%, white) 45%,
+    color-mix(in oklab, var(--border) 55%, white) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.35s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* Loading — nav progress */
+.nav-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.nav-progress-bar {
+  height: 100%;
+  width: 35%;
+  background: var(--accent);
+  animation: nav-progress-slide 1s ease-in-out infinite;
+}
+
+@keyframes nav-progress-slide {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+/* Switch busy state */
+.switch-busy {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.switch-busy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: color-mix(in oklab, white 35%, transparent);
+}
+
 

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { BusyButton } from "@/components/ui/BusyButton";
+import { Spinner } from "@/components/ui/Spinner";
 import { apolloPeopleSearchUrl } from "@/lib/apollo";
 import { copyRich, copyText } from "@/lib/clipboard";
 import { gmailComposeUrl } from "@/lib/gmail";
@@ -153,19 +155,22 @@ export function JobWorkspace({
 
   async function addContacts() {
     setBusy("contacts");
-    const res = await fetch(`/api/jobs/${job.id}/contacts`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dump }),
-    });
-    setBusy("");
-    if (!res.ok) {
-      flash("Could not parse contacts");
-      return;
+    try {
+      const res = await fetch(`/api/jobs/${job.id}/contacts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dump }),
+      });
+      if (!res.ok) {
+        flash("Could not parse contacts");
+        return;
+      }
+      setDump("");
+      await refresh();
+      flash("Contacts added");
+    } finally {
+      setBusy("");
     }
-    setDump("");
-    await refresh();
-    flash("Contacts added");
   }
 
   async function generateDrafts() {
@@ -178,73 +183,121 @@ export function JobWorkspace({
       return;
     }
     setBusy("drafts");
-    const res = await fetch(`/api/jobs/${job.id}/drafts`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ templateId, contactIds: selected }),
-    });
-    setBusy("");
-    if (!res.ok) {
-      flash("Could not build drafts");
-      return;
+    try {
+      const res = await fetch(`/api/jobs/${job.id}/drafts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ templateId, contactIds: selected }),
+      });
+      if (!res.ok) {
+        flash("Could not build drafts");
+        return;
+      }
+      await refresh();
+      setActivePersonId(selected[0]);
+      setStep(3);
+      flash(`Ready for ${selected.length} people`);
+    } finally {
+      setBusy("");
     }
-    await refresh();
-    setActivePersonId(selected[0]);
-    setStep(3);
-    flash(`Ready for ${selected.length} people`);
   }
 
   async function generateAiTemplate() {
     setBusy("ai");
-    const res = await fetch("/api/templates/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        company: job.company,
-        role: job.role,
-        location: job.location,
-        notes: job.notes,
-        save: true,
-      }),
-    });
-    const data = await res.json();
-    setBusy("");
-    if (!res.ok) {
-      flash("AI template failed");
-      return;
+    try {
+      const res = await fetch("/api/templates/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company: job.company,
+          role: job.role,
+          location: job.location,
+          notes: job.notes,
+          save: true,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        flash("AI template failed");
+        return;
+      }
+      await reloadTemplates();
+      if (data.template?.id) setTemplateId(data.template.id);
+      flash("Template saved");
+    } finally {
+      setBusy("");
     }
-    await reloadTemplates();
-    if (data.template?.id) setTemplateId(data.template.id);
-    flash("Template saved");
   }
 
   async function markDraft(id: string, status: string) {
-    await fetch(`/api/drafts/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    await refresh();
+    setBusy(`draft:${status}:${id}`);
+    try {
+      await fetch(`/api/drafts/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      await refresh();
+    } finally {
+      setBusy("");
+    }
   }
 
   async function onRichCopy(draft: Draft) {
-    const result = await copyRich(draft.bodyHtml, draft.bodyPlain);
-    if (result.ok) {
-      await markDraft(draft.id, "copied");
-      flash(result.mode === "rich" ? "Copied — paste in Gmail" : "Plain text copied");
-    } else {
-      flash("Copy failed");
+    setBusy(`copy:${draft.id}`);
+    try {
+      const result = await copyRich(draft.bodyHtml, draft.bodyPlain);
+      if (result.ok) {
+        await fetch(`/api/drafts/${draft.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "copied" }),
+        });
+        await refresh();
+        flash(result.mode === "rich" ? "Copied — paste in Gmail" : "Plain text copied");
+      } else {
+        flash("Copy failed");
+      }
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function onGmail(draft: Draft) {
+    setBusy(`gmail:${draft.id}`);
+    try {
+      await fetch(`/api/drafts/${draft.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "opened" }),
+      });
+      window.open(
+        gmailComposeUrl({
+          to: draft.contact.email,
+          subject: draft.subject,
+        }),
+        "_blank",
+      );
+      await refresh();
+    } finally {
+      setBusy("");
     }
   }
 
   async function toggleOutreached() {
+    if (busy === "outreached") return;
     const next = outreached ? "researching" : "outreached";
-    await fetch(`/api/jobs/${job.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: next }),
-    });
-    await refresh();
+    setBusy("outreached");
+    try {
+      await fetch(`/api/jobs/${job.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: next }),
+      });
+      await refresh();
+    } finally {
+      setBusy("");
+    }
   }
 
   function openApollo() {
@@ -283,17 +336,25 @@ export function JobWorkspace({
             type="button"
             role="switch"
             aria-checked={outreached}
+            aria-busy={busy === "outreached" || undefined}
+            disabled={busy === "outreached"}
             onClick={toggleOutreached}
             className={`relative mt-1 h-7 w-12 shrink-0 rounded-full transition ${
               outreached ? "bg-[var(--accent)]" : "bg-[var(--border)]"
-            }`}
+            } ${busy === "outreached" ? "switch-busy" : ""}`}
             title="Outreached"
           >
-            <span
-              className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition ${
-                outreached ? "translate-x-5" : ""
-              }`}
-            />
+            {busy === "outreached" ? (
+              <span className="absolute inset-0 flex items-center justify-center">
+                <Spinner size="sm" className="text-[var(--ink)]" />
+              </span>
+            ) : (
+              <span
+                className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition ${
+                  outreached ? "translate-x-5" : ""
+                }`}
+              />
+            )}
           </button>
         </div>
       </div>
@@ -330,14 +391,16 @@ export function JobWorkspace({
             onChange={(e) => setDump(e.target.value)}
             placeholder={"Jane Doe, jane@acme.com, Recruiter\nSam Lee <sam@acme.com>"}
           />
-          <button
+          <BusyButton
             type="button"
             className="btn btn-ghost w-full"
-            disabled={!dump.trim() || busy === "contacts"}
+            disabled={!dump.trim()}
+            busy={busy === "contacts"}
+            busyLabel="Adding…"
             onClick={addContacts}
           >
-            {busy === "contacts" ? "Adding…" : "Add to list"}
-          </button>
+            Add to list
+          </BusyButton>
 
           {job.contacts.length === 0 ? (
             <p className="empty-hint">No contacts yet. Paste a dump above.</p>
@@ -407,9 +470,15 @@ export function JobWorkspace({
           ) : null}
 
           <div className="flex gap-2">
-            <button type="button" className="btn btn-ghost flex-1 text-sm" onClick={generateAiTemplate} disabled={busy === "ai"}>
-              {busy === "ai" ? "Writing…" : "AI draft"}
-            </button>
+            <BusyButton
+              type="button"
+              className="btn btn-ghost flex-1 text-sm"
+              onClick={generateAiTemplate}
+              busy={busy === "ai"}
+              busyLabel="Writing…"
+            >
+              AI draft
+            </BusyButton>
             <Link href="/templates" className="btn btn-ghost flex-1 text-center text-sm">
               Edit templates
             </Link>
@@ -469,14 +538,16 @@ export function JobWorkspace({
             <button type="button" className="btn btn-ghost flex-1" onClick={() => setStep(1)}>
               Back
             </button>
-            <button
+            <BusyButton
               type="button"
               className="btn btn-primary flex-1"
-              disabled={!selected.length || !template || busy === "drafts"}
+              disabled={!selected.length || !template}
+              busy={busy === "drafts"}
+              busyLabel="Building…"
               onClick={generateDrafts}
             >
-              {busy === "drafts" ? "Building…" : `Build for ${selected.length}`}
-            </button>
+              {`Build for ${selected.length}`}
+            </BusyButton>
           </div>
         </section>
       ) : null}
@@ -523,12 +594,20 @@ export function JobWorkspace({
                     dangerouslySetInnerHTML={{ __html: activeDraft.bodyHtml }}
                   />
                   <div className="mail-actions">
-                    <button type="button" className="btn btn-accent" onClick={() => onRichCopy(activeDraft)}>
+                    <BusyButton
+                      type="button"
+                      className="btn btn-accent"
+                      busy={busy === `copy:${activeDraft.id}`}
+                      busyLabel="Copying…"
+                      disabled={Boolean(busy) && busy !== `copy:${activeDraft.id}`}
+                      onClick={() => onRichCopy(activeDraft)}
+                    >
                       Rich copy
-                    </button>
+                    </BusyButton>
                     <button
                       type="button"
                       className="btn btn-ghost"
+                      disabled={Boolean(busy)}
                       onClick={async () => {
                         const ok = await copyText(activeDraft.subject);
                         flash(ok ? "Subject copied" : "Copy failed");
@@ -536,29 +615,26 @@ export function JobWorkspace({
                     >
                       Subject
                     </button>
-                    <button
+                    <BusyButton
                       type="button"
                       className="btn btn-ghost"
-                      onClick={async () => {
-                        await markDraft(activeDraft.id, "opened");
-                        window.open(
-                          gmailComposeUrl({
-                            to: activeDraft.contact.email,
-                            subject: activeDraft.subject,
-                          }),
-                          "_blank",
-                        );
-                      }}
+                      busy={busy === `gmail:${activeDraft.id}`}
+                      busyLabel="Opening…"
+                      disabled={Boolean(busy) && busy !== `gmail:${activeDraft.id}`}
+                      onClick={() => onGmail(activeDraft)}
                     >
                       Gmail
-                    </button>
-                    <button
+                    </BusyButton>
+                    <BusyButton
                       type="button"
                       className="btn btn-ghost"
+                      busy={busy === `draft:sent_manual:${activeDraft.id}`}
+                      busyLabel="Saving…"
+                      disabled={Boolean(busy) && busy !== `draft:sent_manual:${activeDraft.id}`}
                       onClick={() => markDraft(activeDraft.id, "sent_manual")}
                     >
                       Mark sent
-                    </button>
+                    </BusyButton>
                   </div>
                 </article>
               ) : null}
@@ -569,9 +645,15 @@ export function JobWorkspace({
             <button type="button" className="btn btn-ghost flex-1" onClick={() => setStep(2)}>
               Back
             </button>
-            <button type="button" className="btn btn-primary flex-1" onClick={generateDrafts} disabled={busy === "drafts"}>
+            <BusyButton
+              type="button"
+              className="btn btn-primary flex-1"
+              onClick={generateDrafts}
+              busy={busy === "drafts"}
+              busyLabel="Building…"
+            >
               Rebuild drafts
-            </button>
+            </BusyButton>
           </div>
         </section>
       ) : null}
