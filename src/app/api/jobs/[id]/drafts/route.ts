@@ -35,6 +35,12 @@ export async function POST(req: Request, ctx: Ctx) {
 
   const contacts = job.contacts.filter((c) => contactIds.includes(c.id));
   const profile = user.profile;
+
+  // Replace prior drafts for these contacts (don't append forever)
+  await prisma.draft.deleteMany({
+    where: { jobId, contactId: { in: contacts.map((c) => c.id) } },
+  });
+
   const drafts = [];
 
   for (const contact of contacts) {
@@ -46,13 +52,13 @@ export async function POST(req: Request, ctx: Ctx) {
       company: job.company,
       role: job.role,
       location: job.location,
-      my_name: profile.fullName,
-      my_headline: profile.headline,
-      my_linkedin: profile.linkedIn,
-      my_portfolio: profile.portfolio,
-      my_phone: profile.phone,
-      my_summary: profile.summary,
-      my_skills: profile.skills,
+      my_name: profile.fullName || "",
+      my_headline: profile.headline || "",
+      my_linkedin: profile.linkedIn || "",
+      my_portfolio: profile.portfolio || "",
+      my_phone: profile.phone || "",
+      my_summary: profile.summary || "",
+      my_skills: profile.skills || "",
     };
     const subject = fillPlaceholders(template.subject, ctxMap);
     const bodyHtml = fillPlaceholders(template.bodyHtml, ctxMap);

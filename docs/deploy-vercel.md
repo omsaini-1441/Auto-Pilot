@@ -38,10 +38,20 @@ In Vercel → Project → **Settings** → **Environment Variables**, add for **
 | Name | Value |
 |---|---|
 | `DATABASE_URL` | Neon connection string from step 1 |
-| `AUTH_SECRET` | Long random string (e.g. run `openssl rand -base64 32`) |
-| `SOLO_PASSWORD` | Your login password (not the default in production) |
+| `AUTH_SECRET` | **Required.** ≥32 random chars. Generate: `openssl rand -base64 48` |
+| `SOLO_PASSWORD` | **Required.** ≥12 chars, not `outreach`. This is your site login. |
 | `GEMINI_API_KEY` | From [Google AI Studio](https://aistudio.google.com/apikey) |
 | `GEMINI_MODEL` | `gemini-3.5-flash-lite` (or whatever you use) |
+
+### Auth hardening (already in the app)
+
+- Production refuses weak/missing `AUTH_SECRET` or `SOLO_PASSWORD`
+- Login is rate-limited (lockout after repeated failures)
+- No default-password hint on the public login page
+- Sessions last 7 days; cookies are `httpOnly` + `secure` in production
+- All routes except `/login` require a valid session cookie
+
+**Do not** leave `AUTH_SECRET` as anything containing `change-in-production` or `dev-secret` on Vercel.
 
 ## 5. Deploy
 

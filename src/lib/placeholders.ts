@@ -35,20 +35,43 @@ const BRACKET_ALIASES: Record<string, keyof PlaceholderContext> = {
   "my phone": "my_phone",
   "my summary": "my_summary",
   "my skills": "my_skills",
+  my_name: "my_name",
+  my_headline: "my_headline",
+  first_name: "first_name",
+  full_name: "full_name",
 };
+
+function normalizeTemplateHtml(html: string): string {
+  return html
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&#160;/g, " ")
+    // TipTap sometimes wraps words inside placeholders
+    .replace(/\[([^\]]*)<[^>]+>([^<\]]*)<\/[^>]+>([^\]]*)\]/g, "[$1$2$3]")
+    .replace(/\[([^\]]*)<[^>]+>([^<\]]*)\]/g, "[$1$2]");
+}
 
 function fillBrackets(html: string, ctx: PlaceholderContext): string {
   return html.replace(/\[([^\]]+)\]/g, (match, raw: string) => {
-    const key = BRACKET_ALIASES[raw.trim().toLowerCase()];
+    const normalized = String(raw)
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase()
+      .replace(/_/g, " ");
+    const underscored = String(raw).trim().toLowerCase();
+    const key =
+      BRACKET_ALIASES[normalized] ||
+      BRACKET_ALIASES[underscored] ||
+      BRACKET_ALIASES[underscored.replace(/\s+/g, "_")];
     if (!key) return match;
     const val = ctx[key];
-    return val != null && String(val).trim() ? String(val) : match;
+    // Known tokens always resolve — empty profile fields become blank, not leftover [brackets]
+    return val != null ? String(val) : "";
   });
 }
 
 /** {{token}} replace + [person name] / [company name] brackets. */
 export function fillPlaceholders(html: string, ctx: PlaceholderContext): string {
-  let out = html;
+  let out = normalizeTemplateHtml(html);
 
   // Conditional blocks: {{#key}}...{{/key}}
   out = out.replace(/\{\{#(\w+)\}\}([\s\S]*?)\{\{\/\1\}\}/g, (_, key: string, inner: string) => {
@@ -65,6 +88,13 @@ export function fillPlaceholders(html: string, ctx: PlaceholderContext): string 
   });
 
   out = fillBrackets(out, ctx);
+
+  // Clean awkward leftovers like "in ." or double spaces after empty headline
+  out = out
+    .replace(/\s+([.,;:])/g, "$1")
+    .replace(/  +/g, " ")
+    .replace(/<p>\s*<\/p>/g, "");
+
   return out;
 }
 

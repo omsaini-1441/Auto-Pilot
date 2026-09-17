@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function LoginForm() {
+export function LoginForm({ showDefaultHint = false }: { showDefaultHint?: boolean }) {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -18,9 +18,10 @@ export function LoginForm() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ password }),
     });
+    const data = await res.json().catch(() => ({}));
     setLoading(false);
     if (!res.ok) {
-      setError("Wrong password");
+      setError(typeof data.error === "string" ? data.error : "Wrong password");
       return;
     }
     router.push("/");
@@ -40,15 +41,22 @@ export function LoginForm() {
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="SOLO_PASSWORD from .env"
+          placeholder="Your access password"
           required
+          minLength={1}
         />
       </div>
       {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
       <button className="btn btn-primary w-full" disabled={loading} type="submit">
         {loading ? "Signing in…" : "Enter"}
       </button>
-      <p className="text-xs text-[var(--muted)]">Default password is <code>outreach</code> unless you changed .env</p>
+      {showDefaultHint ? (
+        <p className="text-xs text-[var(--muted)]">
+          Local default is <code>outreach</code> unless you set <code>SOLO_PASSWORD</code>.
+        </p>
+      ) : (
+        <p className="text-xs text-[var(--muted)]">Private access only. Unauthorized use is blocked.</p>
+      )}
     </form>
   );
 }
