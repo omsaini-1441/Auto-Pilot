@@ -47,7 +47,7 @@ You can still use the full pipeline. On Add job, skip **Extract with AI** and ty
 
 ### Changing the password after first run
 
-The first login seeds a user with a hash of `SOLO_PASSWORD`. Changing `.env` later does **not** automatically update an existing hash — use **Forgot password** / reset link, or set a new password via `/reset-password` after requesting a link.
+Login checks the **stored password hash only** (not a live read of `.env` on every attempt). Changing `SOLO_PASSWORD` in `.env` does not unlock an already-seeded account — use **Forgot password**, or if the account was still on the old default `outreach`, the next request rewrites the hash to your configured `SOLO_PASSWORD` once.
 
 ## Useful scripts
 

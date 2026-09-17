@@ -22,13 +22,30 @@ function secretKey() {
   return new TextEncoder().encode(secret);
 }
 
+const LEGACY_DEFAULT_PASSWORD = "outreach";
+
 function soloPasswordFromEnv() {
   assertAuthConfigured();
   const password = process.env.SOLO_PASSWORD?.trim();
   if (isProduction() && !password) {
     throw new Error("SOLO_PASSWORD is required in production");
   }
-  return password || "outreach";
+  // Dev-only seed when SOLO_PASSWORD is unset; never accepted alongside a real SOLO_PASSWORD.
+  return password || LEGACY_DEFAULT_PASSWORD;
+}
+
+/** If the DB still has the old default hash and SOLO_PASSWORD is set to something else, replace it. */
+async function retireLegacyDefaultPassword(userId: string, passwordHash: string) {
+  const configured = process.env.SOLO_PASSWORD?.trim();
+  if (!configured || configured === LEGACY_DEFAULT_PASSWORD) return passwordHash;
+  if (!(await bcrypt.compare(LEGACY_DEFAULT_PASSWORD, passwordHash))) return passwordHash;
+
+  const nextHash = await bcrypt.hash(configured, BCRYPT_ROUNDS);
+  await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash: nextHash },
+  });
+  return nextHash;
 }
 
 export async function ensureSoloUser() {
@@ -54,7 +71,13 @@ export async function ensureSoloUser() {
     }
   }
 
-  if (existing) return existing;
+  if (existing) {
+    const passwordHash = await retireLegacyDefaultPassword(existing.id, existing.passwordHash);
+    if (passwordHash !== existing.passwordHash) {
+      return { ...existing, passwordHash };
+    }
+    return existing;
+  }
 
   const passwordHash = await bcrypt.hash(soloPasswordFromEnv(), BCRYPT_ROUNDS);
 
@@ -155,17 +178,8 @@ export async function verifyCredentials(email: string, password: string) {
     return false;
   }
 
-  if (await bcrypt.compare(password, user.passwordHash)) {
-    return true;
-  }
-
-  const expected = soloPasswordFromEnv();
-  if (password === expected) {
-    const passwordHash = await bcrypt.hash(expected, BCRYPT_ROUNDS);
-    await prisma.user.update({ where: { id: user.id }, data: { passwordHash } });
-    return true;
-  }
-  return false;
+  // Single source of truth: stored hash only (no env / legacy dual-accept).
+  return bcrypt.compare(password, user.passwordHash);
 }
 
 /** @deprecated use verifyCredentials */
