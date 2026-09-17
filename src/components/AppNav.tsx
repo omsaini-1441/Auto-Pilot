@@ -60,6 +60,7 @@ export function AppNav() {
 
   if (
     pathname === "/login" ||
+    pathname === "/signup" ||
     pathname === "/forgot-password" ||
     pathname === "/reset-password" ||
     pathname === "/logout"

@@ -10,7 +10,6 @@ import {
   appBaseUrl,
   createPasswordResetToken,
   sendPasswordResetEmail,
-  soloEmailFromEnv,
 } from "@/lib/password-reset";
 
 export async function POST(req: Request) {
@@ -33,14 +32,12 @@ export async function POST(req: Request) {
     message: "If that email is registered, a reset link has been sent.",
   };
 
-  if (!email || !email.includes("@")) {
+  if (!email || !email.includes("@") || email.endsWith("@local")) {
     return NextResponse.json(generic);
   }
 
-  const expected = soloEmailFromEnv();
   const user = await prisma.user.findUnique({ where: { email } });
-
-  if (!user || email !== expected) {
+  if (!user) {
     recordLoginFailure(ip);
     await new Promise((r) => setTimeout(r, 300));
     return NextResponse.json(generic);
@@ -55,7 +52,6 @@ export async function POST(req: Request) {
     if (sent.mode === "dev-log") {
       return NextResponse.json({
         ...generic,
-        // Dev-only convenience so local reset works without Resend
         devResetUrl: resetUrl,
       });
     }

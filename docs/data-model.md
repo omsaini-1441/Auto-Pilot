@@ -17,7 +17,7 @@ User
 ## Entities
 
 ### User
-Solo account. Seeded on first run (`solo@local`) with password hash from `SOLO_PASSWORD`.
+Account created via `/signup` (email + password hash). No env-seeded or `solo@local` default user.
 
 ### Profile
 Fields used in templates as `{{my_*}}`:

@@ -24,7 +24,7 @@ npx prisma migrate deploy
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Default password: `outreach` (from `.env` `SOLO_PASSWORD`).
+Open [http://localhost:3000](http://localhost:3000). Create an account at `/signup` (email + password, min 12 characters).
 
 ## Deploy
 

@@ -39,21 +39,21 @@ In Vercel → Project → **Settings** → **Environment Variables**, add for **
 |---|---|
 | `DATABASE_URL` | Neon connection string from step 1 |
 | `AUTH_SECRET` | **Required.** ≥32 random chars. `openssl rand -base64 48` |
-| `SOLO_EMAIL` | **Required.** Your login email |
-| `SOLO_PASSWORD` | **Required.** ≥12 chars, not `outreach` |
 | `APP_URL` | Your Vercel URL, e.g. `https://your-app.vercel.app` |
 | `RESEND_API_KEY` | Optional but needed for production forgot-password emails |
 | `EMAIL_FROM` | Optional. Verified sender on Resend |
 | `GEMINI_API_KEY` | From Google AI Studio |
 | `GEMINI_MODEL` | `gemini-3.5-flash-lite` |
 
+Do **not** set `SOLO_EMAIL` / `SOLO_PASSWORD` — accounts are created via **`/signup`**. Login fields are never prefilled.
+
 ### Auth hardening (already in the app)
 
-- Production refuses weak/missing `AUTH_SECRET` or `SOLO_PASSWORD`
-- Login is rate-limited (lockout after repeated failures)
-- No default-password hint on the public login page
+- Production refuses weak/missing `AUTH_SECRET`
+- Login / signup are rate-limited (lockout after repeated failures)
+- No default credentials and no email prefill
 - Sessions last 7 days; cookies are `httpOnly` + `secure` in production
-- All routes except `/login` require a valid session cookie
+- All routes except auth pages require a valid session cookie
 
 **Do not** leave `AUTH_SECRET` as anything containing `change-in-production` or `dev-secret` on Vercel.
 
@@ -70,7 +70,7 @@ That creates tables on Neon automatically from `prisma/migrations`.
 ## 6. First login
 
 1. Open your Vercel URL (e.g. `https://auto-pilot-….vercel.app`).
-2. Log in with `SOLO_PASSWORD`.
+2. Go to **Create account** (`/signup`) and register with your email + password (≥12 chars).
 3. Fill **Profile**, add a job, test extract + drafts.
 
 ## Local development after this change
@@ -80,7 +80,6 @@ SQLite local `file:./dev.db` no longer matches the schema. Point local `.env` at
 ```env
 DATABASE_URL="postgresql://…?sslmode=require"
 AUTH_SECRET="…"
-SOLO_PASSWORD="…"
 GEMINI_API_KEY="…"
 GEMINI_MODEL="gemini-3.5-flash-lite"
 ```
@@ -93,17 +92,19 @@ npx prisma generate
 npm run dev
 ```
 
+Create an account at `/signup` (or sign in if you already have one).
+
 ## Troubleshooting
 
 | Issue | Fix |
 |---|---|
 | Build fails on `migrate deploy` | Check `DATABASE_URL` is set and Neon allows connections |
-| `Unauthorized` / can’t log in | Confirm `AUTH_SECRET` + `SOLO_PASSWORD` on Vercel; redeploy after changing them |
+| `Unauthorized` / can’t log in | Confirm `AUTH_SECRET` on Vercel; create an account via `/signup` |
 | Gemini extract fails | Confirm `GEMINI_API_KEY` + model id still valid |
 | Old local SQLite data missing | Expected — data lived in `dev.db`; start fresh on Postgres or export/import manually |
 
 ## Notes
 
 - Keep `.env` out of git (already gitignored). Only `.env.example` is committed.
-- Changing `SOLO_PASSWORD` on Vercel does **not** update an already-seeded user hash. For a fresh Neon DB that’s fine (first login seeds it). To reset password on an existing DB, wipe the `User` row or recreate the Neon database.
+- Password changes: use **Forgot password** (needs Resend in production).
 - Custom domain: Vercel → Project → Domains.

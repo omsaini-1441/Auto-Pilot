@@ -13,10 +13,6 @@ export function appBaseUrl() {
   );
 }
 
-export function soloEmailFromEnv() {
-  return (process.env.SOLO_EMAIL || "solo@local").trim().toLowerCase();
-}
-
 export function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }

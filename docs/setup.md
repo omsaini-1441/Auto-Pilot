@@ -24,7 +24,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) (or whatever `PORT` you set).
 
-Login with `SOLO_EMAIL` + `SOLO_PASSWORD`. Use **Forgot password** on `/login` to reset (dev shows a reset link; production needs `RESEND_API_KEY` + `APP_URL`).
+Create an account at **`/signup`**, then sign in at **`/login`**. Use **Forgot password** to reset (dev shows a reset link; production needs `RESEND_API_KEY` + `APP_URL`).
 
 ## Environment variables
 
@@ -34,8 +34,6 @@ Login with `SOLO_EMAIL` + `SOLO_PASSWORD`. Use **Forgot password** on `/login` t
 | `APP_URL` | Public site URL (reset links) | `http://localhost:3000` |
 | `DATABASE_URL` | Postgres connection string | Neon URI |
 | `AUTH_SECRET` | Session signing (≥32 chars in prod) | random |
-| `SOLO_EMAIL` | Login email | `you@example.com` |
-| `SOLO_PASSWORD` | Login password (≥12 in prod) | strong password |
 | `RESEND_API_KEY` | Optional email for forgot-password | Resend key |
 | `EMAIL_FROM` | From address for reset emails | `Outreach <…>` |
 | `GEMINI_API_KEY` | AI extract / templates | AI Studio |
@@ -45,9 +43,11 @@ Login with `SOLO_EMAIL` + `SOLO_PASSWORD`. Use **Forgot password** on `/login` t
 
 You can still use the full pipeline. On Add job, skip **Extract with AI** and type company / role / location yourself.
 
-### Changing the password after first run
+### Accounts
 
-Login checks the **stored password hash only** (not a live read of `.env` on every attempt). Changing `SOLO_PASSWORD` in `.env` does not unlock an already-seeded account — use **Forgot password**, or if the account was still on the old default `outreach`, the next request rewrites the hash to your configured `SOLO_PASSWORD` once.
+Create an account at **`/signup`** (email + password, min 12 characters). Sign in at **`/login`**. There is no env-based default user and no email prefill.
+
+Use **Forgot password** to reset (dev shows a reset link; production needs `RESEND_API_KEY` + `APP_URL`).
 
 ## Useful scripts
 

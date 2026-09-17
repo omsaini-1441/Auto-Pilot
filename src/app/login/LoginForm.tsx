@@ -4,15 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function LoginForm({
-  showDefaultHint = false,
-  defaultEmail = "",
-}: {
-  showDefaultHint?: boolean;
-  defaultEmail?: string;
-}) {
+export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState(defaultEmail);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -64,7 +58,7 @@ export function LoginForm({
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Your access password"
+          placeholder="Your password"
           required
         />
       </div>
@@ -72,15 +66,13 @@ export function LoginForm({
       <button className="btn btn-primary w-full" disabled={loading} type="submit">
         {loading ? "Signing in…" : "Sign in"}
       </button>
-      <div className="flex items-center justify-between text-xs">
+      <div className="flex items-center justify-between gap-3 text-xs">
         <Link href="/forgot-password" className="text-[var(--accent)] underline">
           Forgot password?
         </Link>
-        {showDefaultHint ? (
-          <span className="text-[var(--muted)]">Local: set SOLO_EMAIL / SOLO_PASSWORD</span>
-        ) : (
-          <span className="text-[var(--muted)]">Private access</span>
-        )}
+        <Link href="/signup" className="text-[var(--accent)] underline">
+          Create account
+        </Link>
       </div>
     </form>
   );

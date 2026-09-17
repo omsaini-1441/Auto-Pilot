@@ -29,8 +29,8 @@ Only AI feature in MVP: turn a job link / paste into structured fields. Flash is
 
 **Note:** A consumer “Gemini Pro” chat subscription is not the same as Developer API quota. The app uses an **AI Studio API key**.
 
-### Solo password auth
-For one user, magic-link / Google OAuth is overkill. A hashed password in SQLite + signed HTTP-only cookie is enough. Change `SOLO_PASSWORD` and `AUTH_SECRET` in `.env`.
+### Email + password auth
+Accounts are created at `/signup`. Passwords are bcrypt-hashed; sessions use a signed HTTP-only cookie (`AUTH_SECRET`).
 
 ## Main folders
 
@@ -51,9 +51,8 @@ docs/            # You are here
 
 See [Setup](./setup.md) for full detail.
 
-- `DATABASE_URL` — SQLite file path
+- `DATABASE_URL` — Postgres (Neon) connection string
 - `AUTH_SECRET` — session signing
-- `SOLO_PASSWORD` — login password
 - `GEMINI_API_KEY` — optional; without it, fill job fields manually
 - `GEMINI_MODEL` — e.g. `gemini-3.5-flash-lite`
 

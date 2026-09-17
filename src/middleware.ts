@@ -3,6 +3,7 @@ import { jwtVerify } from "jose";
 
 const PUBLIC_EXACT = new Set([
   "/login",
+  "/signup",
   "/forgot-password",
   "/reset-password",
   "/logout",
