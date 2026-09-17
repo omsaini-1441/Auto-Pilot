@@ -27,7 +27,11 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en" className={`${sans.variable} ${display.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-[var(--bg)] text-[var(--ink)] antialiased">

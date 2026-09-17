@@ -6,8 +6,9 @@ import { usePathname, useRouter } from "next/navigation";
 const links = [
   { href: "/", label: "Jobs" },
   { href: "/jobs/new", label: "Add" },
+  { href: "/apollo", label: "Apollo" },
   { href: "/templates", label: "Templates" },
-  { href: "/profile", label: "Profile" },
+  { href: "/profile", label: "Me" },
 ];
 
 export function AppNav() {

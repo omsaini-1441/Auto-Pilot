@@ -15,6 +15,20 @@ model User {
   profile      Profile?
   jobs         Job[]
   templates    Template[]
+  apolloAccounts ApolloAccount[]
+}
+
+model ApolloAccount {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label     String
+  /// Hint for which login to use (email / nickname) — not a secret
+  loginHint String   @default("")
+  notes     String   @default("")
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Profile {

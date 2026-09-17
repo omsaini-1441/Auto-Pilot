@@ -7,12 +7,13 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
+    "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "@prisma/client": "^6.19.0",
+    "@prisma/client": "6.19.0",
     "@tiptap/extension-link": "^3.31.3",
     "@tiptap/extension-placeholder": "^3.31.3",
     "@tiptap/extension-underline": "^3.31.3",

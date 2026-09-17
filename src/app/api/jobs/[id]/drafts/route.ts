@@ -74,7 +74,7 @@ export async function POST(req: Request, ctx: Ctx) {
 
   await prisma.job.update({
     where: { id: jobId },
-    data: { status: "drafting" },
+    data: { status: job.status === "outreached" ? "outreached" : "drafting" },
   });
 
   return NextResponse.json({ drafts });

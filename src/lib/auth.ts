@@ -34,12 +34,12 @@ export async function ensureSoloUser() {
         templates: {
           create: {
             name: "Cold intro",
-            subject: "Quick note — {{role}} at {{company}}",
-            bodyHtml: `<p>Hi {{first_name}},</p>
-<p>I noticed <strong>{{company}}</strong> is hiring for <strong>{{role}}</strong>{{#location}} in {{location}}{{/location}}.</p>
-<p>I'm {{my_name}}{{#my_headline}} — {{my_headline}}{{/my_headline}}. I'd love to briefly connect about the role.</p>
+            subject: "Quick note — [role] at [company name]",
+            bodyHtml: `<p>Hi [person name],</p>
+<p>I noticed <strong>[company name]</strong> is hiring for <strong>[role]</strong>{{#location}} in {{location}}{{/location}}.</p>
+<p>I'm [my name]{{#my_headline}} — {{my_headline}}{{/my_headline}}. I'd love to briefly connect about the role.</p>
 <p>Would you be open to a short chat this week?</p>
-<p>Thanks,<br/>{{my_name}}</p>`,
+<p>Thanks,<br/>[my name]</p>`,
             isDefault: true,
           },
         },

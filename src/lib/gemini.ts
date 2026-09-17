@@ -133,3 +133,81 @@ ${blob}
 function capitalize(s: string) {
   return s.replace(/\b\w/g, (c) => c.toUpperCase());
 }
+
+export type GeneratedTemplate = {
+  name: string;
+  subject: string;
+  bodyHtml: string;
+  notes: string;
+};
+
+/** AI cold-email template using [person name] / [company name] markers. */
+export async function generateOutreachTemplate(input: {
+  company?: string;
+  role?: string;
+  location?: string;
+  notes?: string;
+  myName?: string;
+  myHeadline?: string;
+  tone?: string;
+}): Promise<GeneratedTemplate> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  const modelId = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
+
+  if (!apiKey) {
+    return {
+      name: "AI draft (manual fallback)",
+      subject: "Quick note — [role] at [company name]",
+      bodyHtml: `<p>Hi [person name],</p>
+<p>I saw that <strong>[company name]</strong> is hiring for <strong>[role]</strong>.</p>
+<p>I'm [my name] — I'd love to briefly connect about the role.</p>
+<p>Would you be open to a short chat?</p>
+<p>Thanks,<br/>[my name]</p>`,
+      notes: "GEMINI_API_KEY missing — saved a starter template you can edit.",
+    };
+  }
+
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({
+    model: modelId,
+    generationConfig: { responseMimeType: "application/json" },
+  });
+
+  const prompt = `Write a short cold outreach email TEMPLATE for a job seeker.
+Return ONLY JSON: { "name": string, "subject": string, "bodyHtml": string, "notes": string }.
+
+Rules:
+- Keep it human, concise (120-180 words max body), no spammy hype.
+- Use EXACT placeholders in square brackets where personalization goes:
+  [person name], [company name], [role], [location], [my name], [my headline]
+- bodyHtml must be simple HTML: <p>, <strong>, <br/> only. No markdown.
+- subject can also use those brackets.
+- Do NOT invent real person names; always use brackets.
+- Tone: ${input.tone || "professional warm"}.
+Context:
+company=${input.company || ""}
+role=${input.role || ""}
+location=${input.location || ""}
+notes=${input.notes || ""}
+sender_name=${input.myName || "[my name]"}
+sender_headline=${input.myHeadline || ""}`;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const parsed = JSON.parse(result.response.text()) as Partial<GeneratedTemplate>;
+    return {
+      name: String(parsed.name || "AI cold intro"),
+      subject: String(parsed.subject || "Quick note — [role] at [company name]"),
+      bodyHtml: String(parsed.bodyHtml || "<p>Hi [person name],</p><p></p><p>[my name]</p>"),
+      notes: String(parsed.notes || ""),
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "AI generate failed";
+    return {
+      name: "AI draft (failed)",
+      subject: "Quick note — [role] at [company name]",
+      bodyHtml: `<p>Hi [person name],</p><p>I noticed [company name] is hiring for [role].</p><p>Best,<br/>[my name]</p>`,
+      notes: message,
+    };
+  }
+}

@@ -9,6 +9,7 @@ Full write-ups live in **[docs/](./docs/README.md)**:
 - [Overview](./docs/overview.md) — what & why
 - [Tech stack](./docs/tech-stack.md) — Next.js, Prisma, TipTap, Gemini
 - [Workflow](./docs/workflow.md) — job → contacts → draft → Gmail
+- [Apollo](./docs/apollo.md) — account rotate + people search redirect
 - [Setup](./docs/setup.md) — install & env
 - [Data model](./docs/data-model.md) — entities & APIs
 

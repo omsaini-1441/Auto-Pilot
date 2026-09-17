@@ -19,12 +19,5 @@ export async function PATCH(req: Request, ctx: Ctx) {
     include: { contact: true, job: true },
   });
 
-  if (body.status === "copied" || body.status === "opened" || body.status === "sent_manual") {
-    await prisma.job.update({
-      where: { id: updated.jobId },
-      data: { status: "outreached" },
-    });
-  }
-
   return NextResponse.json({ draft: updated });
 }

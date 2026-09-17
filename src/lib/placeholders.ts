@@ -15,14 +15,47 @@ export type PlaceholderContext = {
   my_skills?: string;
 };
 
-/** Simple {{token}} replace. Also strips {{#location}}...{{/location}} blocks when empty. */
+/** Map bracket labels like [person name] to context keys */
+const BRACKET_ALIASES: Record<string, keyof PlaceholderContext> = {
+  "person name": "full_name",
+  "full name": "full_name",
+  name: "full_name",
+  "first name": "first_name",
+  "company name": "company",
+  company: "company",
+  role: "role",
+  "job role": "role",
+  location: "location",
+  title: "title",
+  email: "email",
+  "my name": "my_name",
+  "my headline": "my_headline",
+  "my linkedin": "my_linkedin",
+  "my portfolio": "my_portfolio",
+  "my phone": "my_phone",
+  "my summary": "my_summary",
+  "my skills": "my_skills",
+};
+
+function fillBrackets(html: string, ctx: PlaceholderContext): string {
+  return html.replace(/\[([^\]]+)\]/g, (match, raw: string) => {
+    const key = BRACKET_ALIASES[raw.trim().toLowerCase()];
+    if (!key) return match;
+    const val = ctx[key];
+    return val != null && String(val).trim() ? String(val) : match;
+  });
+}
+
+/** {{token}} replace + [person name] / [company name] brackets. */
 export function fillPlaceholders(html: string, ctx: PlaceholderContext): string {
   let out = html;
 
   // Conditional blocks: {{#key}}...{{/key}}
   out = out.replace(/\{\{#(\w+)\}\}([\s\S]*?)\{\{\/\1\}\}/g, (_, key: string, inner: string) => {
     const val = ctx[key as keyof PlaceholderContext];
-    if (val && String(val).trim()) return inner.replace(/\{\{(\w+)\}\}/g, (__, k) => String(ctx[k as keyof PlaceholderContext] ?? ""));
+    if (val && String(val).trim()) {
+      return fillPlaceholders(inner, ctx);
+    }
     return "";
   });
 
@@ -31,6 +64,7 @@ export function fillPlaceholders(html: string, ctx: PlaceholderContext): string 
     return val != null ? String(val) : "";
   });
 
+  out = fillBrackets(out, ctx);
   return out;
 }
 
@@ -55,19 +89,15 @@ export function firstName(fullName: string): string {
 }
 
 export const PLACEHOLDER_HELP = [
+  "[person name]",
+  "[company name]",
+  "[role]",
+  "[location]",
+  "[title]",
+  "[my name]",
+  "[my headline]",
   "{{first_name}}",
-  "{{full_name}}",
-  "{{email}}",
-  "{{title}}",
   "{{company}}",
   "{{role}}",
-  "{{location}}",
-  "{{my_name}}",
-  "{{my_headline}}",
-  "{{my_linkedin}}",
-  "{{my_portfolio}}",
-  "{{my_phone}}",
-  "{{my_summary}}",
-  "{{my_skills}}",
   "{{#location}} … {{/location}}",
 ];
