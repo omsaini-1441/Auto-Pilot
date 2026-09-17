@@ -49,7 +49,7 @@ export async function extractJobDetails(input: {
   sourceText?: string;
 }): Promise<JobExtract & { fetchedSnippet: string }> {
   const apiKey = process.env.GEMINI_API_KEY;
-  const modelId = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+  const modelId = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
 
   let fetchedSnippet = "";
   if (input.sourceUrl?.trim()) {

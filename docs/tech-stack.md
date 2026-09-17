@@ -55,7 +55,7 @@ See [Setup](./setup.md) for full detail.
 - `AUTH_SECRET` — session signing
 - `SOLO_PASSWORD` — login password
 - `GEMINI_API_KEY` — optional; without it, fill job fields manually
-- `GEMINI_MODEL` — e.g. `gemini-2.0-flash`
+- `GEMINI_MODEL` — e.g. `gemini-3.5-flash-lite`
 
 ## Intentional non-choices
 

@@ -29,7 +29,7 @@ Open [http://localhost:3000](http://localhost:3000). Default password: `outreach
 
 ```env
 GEMINI_API_KEY=your_key
-GEMINI_MODEL=gemini-2.0-flash
+GEMINI_MODEL=gemini-3.5-flash-lite
 ```
 
 Without a key, you can still fill company/role/location manually.

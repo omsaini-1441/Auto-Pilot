@@ -29,7 +29,7 @@ Copy from `.env.example`:
 | `AUTH_SECRET` | Signs the session cookie | long random string |
 | `SOLO_PASSWORD` | Login password | `outreach` |
 | `GEMINI_API_KEY` | AI job extract | from AI Studio |
-| `GEMINI_MODEL` | Model id | `gemini-2.0-flash` |
+| `GEMINI_MODEL` | Model id | `gemini-3.5-flash-lite` (free-tier friendly) |
 
 ### Without Gemini
 
