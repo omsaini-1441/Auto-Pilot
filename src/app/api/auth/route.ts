@@ -8,11 +8,16 @@ import {
   ensureSoloUser,
   getClientIp,
   recordLoginFailure,
-  verifySoloPassword,
+  verifyCredentials,
 } from "@/lib/auth";
 
 export async function POST(req: Request) {
-  const body = (await req.json()) as { password?: string; action?: string };
+  const body = (await req.json()) as {
+    email?: string;
+    password?: string;
+    action?: string;
+  };
+
   if (body.action === "logout") {
     await destroySession();
     return NextResponse.json({ ok: true });
@@ -33,13 +38,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: message }, { status: 429 });
   }
 
+  const email = String(body.email || "");
   const password = String(body.password || "");
-  const ok = await verifySoloPassword(password);
+  const ok = await verifyCredentials(email, password);
   if (!ok) {
     recordLoginFailure(ip);
-    // Constant-ish delay to slow password spraying
     await new Promise((r) => setTimeout(r, 400 + Math.floor(Math.random() * 400)));
-    return NextResponse.json({ error: "Wrong password" }, { status: 401 });
+    return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
   }
 
   clearLoginFailures(ip);

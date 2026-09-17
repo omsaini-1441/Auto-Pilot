@@ -14,11 +14,11 @@ export default async function LoginPage() {
       <div>
         <p className="text-sm font-medium uppercase tracking-[0.14em] text-[var(--muted)]">Private</p>
         <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl leading-tight text-[var(--ink)]">
-          Outreach
+          Sign in
         </h1>
-        <p className="mt-2 max-w-sm text-[var(--muted)]">Sign in with your access password to continue.</p>
+        <p className="mt-2 max-w-sm text-[var(--muted)]">Use your account email and password to continue.</p>
       </div>
-      <LoginForm showDefaultHint={hints.showDefaultHint} />
+      <LoginForm showDefaultHint={hints.showDefaultHint} defaultEmail={hints.defaultEmail} />
     </div>
   );
 }

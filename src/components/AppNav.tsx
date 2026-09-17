@@ -36,7 +36,9 @@ export function AppNav() {
     router.refresh();
   }
 
-  if (pathname === "/login") return null;
+  if (pathname === "/login" || pathname === "/forgot-password" || pathname === "/reset-password" || pathname === "/logout") {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur">
@@ -63,7 +65,7 @@ export function AppNav() {
             );
           })}
           <button type="button" onClick={logout} className="ml-1 text-xs text-[var(--muted)] underline">
-            Out
+            Log out
           </button>
         </nav>
       </div>

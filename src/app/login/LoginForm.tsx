@@ -1,10 +1,18 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export function LoginForm({ showDefaultHint = false }: { showDefaultHint?: boolean }) {
+export function LoginForm({
+  showDefaultHint = false,
+  defaultEmail = "",
+}: {
+  showDefaultHint?: boolean;
+  defaultEmail?: string;
+}) {
   const router = useRouter();
+  const [email, setEmail] = useState(defaultEmail);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,12 +24,12 @@ export function LoginForm({ showDefaultHint = false }: { showDefaultHint?: boole
     const res = await fetch("/api/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ email, password }),
     });
     const data = await res.json().catch(() => ({}));
     setLoading(false);
     if (!res.ok) {
-      setError(typeof data.error === "string" ? data.error : "Wrong password");
+      setError(typeof data.error === "string" ? data.error : "Invalid email or password");
       return;
     }
     router.push("/");
@@ -30,6 +38,21 @@ export function LoginForm({ showDefaultHint = false }: { showDefaultHint?: boole
 
   return (
     <form onSubmit={onSubmit} className="card space-y-4">
+      <div>
+        <label className="label" htmlFor="email">
+          Email
+        </label>
+        <input
+          id="email"
+          className="field"
+          type="email"
+          autoComplete="username"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+          required
+        />
+      </div>
       <div>
         <label className="label" htmlFor="password">
           Password
@@ -43,20 +66,22 @@ export function LoginForm({ showDefaultHint = false }: { showDefaultHint?: boole
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Your access password"
           required
-          minLength={1}
         />
       </div>
       {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
       <button className="btn btn-primary w-full" disabled={loading} type="submit">
-        {loading ? "Signing in…" : "Enter"}
+        {loading ? "Signing in…" : "Sign in"}
       </button>
-      {showDefaultHint ? (
-        <p className="text-xs text-[var(--muted)]">
-          Local default is <code>outreach</code> unless you set <code>SOLO_PASSWORD</code>.
-        </p>
-      ) : (
-        <p className="text-xs text-[var(--muted)]">Private access only. Unauthorized use is blocked.</p>
-      )}
+      <div className="flex items-center justify-between text-xs">
+        <Link href="/forgot-password" className="text-[var(--accent)] underline">
+          Forgot password?
+        </Link>
+        {showDefaultHint ? (
+          <span className="text-[var(--muted)]">Local: set SOLO_EMAIL / SOLO_PASSWORD</span>
+        ) : (
+          <span className="text-[var(--muted)]">Private access</span>
+        )}
+      </div>
     </form>
   );
 }

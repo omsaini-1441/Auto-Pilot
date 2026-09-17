@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
-const PUBLIC = ["/login", "/manifest.webmanifest"];
+const PUBLIC_EXACT = new Set([
+  "/login",
+  "/forgot-password",
+  "/reset-password",
+  "/logout",
+  "/manifest.webmanifest",
+]);
 
 function isProduction() {
   return process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production";
@@ -23,7 +29,7 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api/auth") ||
     pathname.includes(".") ||
-    PUBLIC.includes(pathname)
+    PUBLIC_EXACT.has(pathname)
   ) {
     return NextResponse.next();
   }

@@ -2,42 +2,14 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { prisma } from "./db";
+import { assertAuthConfigured, isProduction } from "./auth-config";
+import { soloEmailFromEnv } from "./password-reset";
 
 const COOKIE = "outreach_session";
 const BCRYPT_ROUNDS = 12;
 const SESSION_DAYS = 7;
 
-const WEAK_SECRET_FRAGMENTS = [
-  "change-in-production",
-  "dev-secret",
-  "changeme",
-  "secret",
-];
-
-function isProduction() {
-  return process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production";
-}
-
-/** Fail closed in production if secrets are missing or weak. */
-export function assertAuthConfigured() {
-  if (!isProduction()) return;
-
-  const secret = process.env.AUTH_SECRET?.trim() || "";
-  const password = process.env.SOLO_PASSWORD?.trim() || "";
-
-  if (secret.length < 32) {
-    throw new Error("AUTH_SECRET must be at least 32 characters in production");
-  }
-  if (WEAK_SECRET_FRAGMENTS.some((f) => secret.toLowerCase().includes(f))) {
-    throw new Error("AUTH_SECRET looks like a placeholder — set a strong random value");
-  }
-  if (password.length < 12) {
-    throw new Error("SOLO_PASSWORD must be at least 12 characters in production");
-  }
-  if (password === "outreach" || password.toLowerCase() === "password") {
-    throw new Error("SOLO_PASSWORD is too common for production");
-  }
-}
+export { assertAuthConfigured, isProduction } from "./auth-config";
 
 function secretKey() {
   assertAuthConfigured();
@@ -60,10 +32,28 @@ function soloPasswordFromEnv() {
 }
 
 export async function ensureSoloUser() {
-  const existing = await prisma.user.findUnique({
-    where: { email: "solo@local" },
+  const email = soloEmailFromEnv();
+
+  let existing = await prisma.user.findUnique({
+    where: { email },
     include: { profile: true },
   });
+
+  // Migrate legacy solo@local row to configured email
+  if (!existing && email !== "solo@local") {
+    const legacy = await prisma.user.findUnique({
+      where: { email: "solo@local" },
+      include: { profile: true },
+    });
+    if (legacy) {
+      existing = await prisma.user.update({
+        where: { id: legacy.id },
+        data: { email },
+        include: { profile: true },
+      });
+    }
+  }
+
   if (existing) return existing;
 
   const passwordHash = await bcrypt.hash(soloPasswordFromEnv(), BCRYPT_ROUNDS);
@@ -71,7 +61,7 @@ export async function ensureSoloUser() {
   try {
     return await prisma.user.create({
       data: {
-        email: "solo@local",
+        email,
         passwordHash,
         profile: {
           create: {
@@ -96,7 +86,7 @@ export async function ensureSoloUser() {
     });
   } catch {
     const again = await prisma.user.findUnique({
-      where: { email: "solo@local" },
+      where: { email },
       include: { profile: true },
     });
     if (!again) throw new Error("Failed to ensure solo user");
@@ -155,14 +145,20 @@ export async function requireUser() {
   return user;
 }
 
-export async function verifySoloPassword(password: string) {
-  if (!password) return false;
+export async function verifyCredentials(email: string, password: string) {
+  if (!email?.trim() || !password) return false;
   const user = await ensureSoloUser();
+  const normalized = email.trim().toLowerCase();
+  if (user.email.toLowerCase() !== normalized) {
+    // Timing-ish: still hash to avoid email oracle speed difference
+    await bcrypt.compare(password, user.passwordHash);
+    return false;
+  }
+
   if (await bcrypt.compare(password, user.passwordHash)) {
     return true;
   }
 
-  // Env is source of truth — allow rotating SOLO_PASSWORD without wiping the DB.
   const expected = soloPasswordFromEnv();
   if (password === expected) {
     const passwordHash = await bcrypt.hash(expected, BCRYPT_ROUNDS);
@@ -172,7 +168,11 @@ export async function verifySoloPassword(password: string) {
   return false;
 }
 
-/** Simple per-IP lockout (best-effort on serverless). */
+/** @deprecated use verifyCredentials */
+export async function verifySoloPassword(password: string) {
+  return verifyCredentials(soloEmailFromEnv(), password);
+}
+
 const loginAttempts = new Map<string, { count: number; lockedUntil: number }>();
 
 export function getClientIp(req: Request): string {
@@ -212,5 +212,6 @@ export function clearLoginFailures(ip: string) {
 export function loginPageHints() {
   return {
     showDefaultHint: !isProduction(),
+    defaultEmail: !isProduction() ? soloEmailFromEnv() : "",
   };
 }

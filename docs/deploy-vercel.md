@@ -38,10 +38,14 @@ In Vercel → Project → **Settings** → **Environment Variables**, add for **
 | Name | Value |
 |---|---|
 | `DATABASE_URL` | Neon connection string from step 1 |
-| `AUTH_SECRET` | **Required.** ≥32 random chars. Generate: `openssl rand -base64 48` |
-| `SOLO_PASSWORD` | **Required.** ≥12 chars, not `outreach`. This is your site login. |
-| `GEMINI_API_KEY` | From [Google AI Studio](https://aistudio.google.com/apikey) |
-| `GEMINI_MODEL` | `gemini-3.5-flash-lite` (or whatever you use) |
+| `AUTH_SECRET` | **Required.** ≥32 random chars. `openssl rand -base64 48` |
+| `SOLO_EMAIL` | **Required.** Your login email |
+| `SOLO_PASSWORD` | **Required.** ≥12 chars, not `outreach` |
+| `APP_URL` | Your Vercel URL, e.g. `https://your-app.vercel.app` |
+| `RESEND_API_KEY` | Optional but needed for production forgot-password emails |
+| `EMAIL_FROM` | Optional. Verified sender on Resend |
+| `GEMINI_API_KEY` | From Google AI Studio |
+| `GEMINI_MODEL` | `gemini-3.5-flash-lite` |
 
 ### Auth hardening (already in the app)
 
