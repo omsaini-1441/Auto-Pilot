@@ -220,8 +220,8 @@ export function TemplatesClient({ initial }: { initial: Template[] }) {
     <div className="space-y-4">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h1 className="font-[family-name:var(--font-display)] text-3xl">Templates</h1>
-          <p className="text-sm text-[var(--muted)]">
+          <h1 className="font-(family-name:--font-display) text-3xl">Templates</h1>
+          <p className="text-sm text-(--muted)">
             {templates.length} saved · <span className="lg:hidden">tap a row to expand</span>
             <span className="hidden lg:inline">click a row to expand</span>
           </p>
@@ -250,12 +250,12 @@ export function TemplatesClient({ initial }: { initial: Template[] }) {
         </div>
       </div>
 
-      {msg ? <p className="text-sm text-[var(--accent)]">{msg}</p> : null}
+      {msg ? <p className="text-sm text-(--accent)">{msg}</p> : null}
 
       {templates.length === 0 ? (
         <div className="panel text-center">
           <p className="font-medium">No templates yet</p>
-          <p className="mt-1 text-sm text-[var(--muted)]">Create one or generate with AI.</p>
+          <p className="mt-1 text-sm text-(--muted)">Create one or generate with AI.</p>
           <div className="mt-4 flex gap-2 justify-center">
             <BusyButton
               type="button"
@@ -297,7 +297,7 @@ export function TemplatesClient({ initial }: { initial: Template[] }) {
                       {t.isDefault ? <span className="tpl-badge">Default</span> : null}
                       {dirty ? <span className="tpl-badge tpl-badge-warn">Unsaved</span> : null}
                     </span>
-                    <span className="mt-0.5 block truncate text-xs text-[var(--muted)]">
+                    <span className="mt-0.5 block truncate text-xs text-(--muted)">
                       {subjectPreview(d.subject)}
                     </span>
                   </span>
@@ -354,7 +354,7 @@ export function TemplatesClient({ initial }: { initial: Template[] }) {
                               Set default
                             </BusyButton>
                           ) : (
-                            <span className="self-center text-xs text-[var(--muted)]">Current default</span>
+                            <span className="self-center text-xs text-(--muted)">Current default</span>
                           )}
                           <BusyButton
                             type="button"
@@ -376,7 +376,7 @@ export function TemplatesClient({ initial }: { initial: Template[] }) {
                           </button>
                           <BusyButton
                             type="button"
-                            className="btn btn-ghost text-[var(--danger)]"
+                            className="btn btn-ghost text-(--danger)"
                             busy={actionBusy === `del:${t.id}`}
                             busyLabel="Deleting…"
                             disabled={anyBusy && actionBusy !== `del:${t.id}`}
@@ -416,7 +416,7 @@ export function TemplatesClient({ initial }: { initial: Template[] }) {
       {showPlaceholders ? (
         <div className="panel">
           <p className="mb-2 text-sm font-medium">Use these in subject or body</p>
-          <ul className="grid grid-cols-2 gap-1 text-xs text-[var(--muted)]">
+          <ul className="grid grid-cols-2 gap-1 text-xs text-(--muted)">
             {PLACEHOLDER_HELP.map((p) => (
               <li key={p}>
                 <code>{p}</code>

@@ -52,8 +52,8 @@ function ResetForm() {
   if (!token) {
     return (
       <div className="card space-y-3">
-        <p className="text-sm text-[var(--danger)]">Missing reset token. Request a new link.</p>
-        <Link href="/forgot-password" className="text-sm text-[var(--accent)] underline">
+        <p className="text-sm text-(--danger)">Missing reset token. Request a new link.</p>
+        <Link href="/forgot-password" className="text-sm text-(--accent) underline">
           Forgot password
         </Link>
       </div>
@@ -88,11 +88,11 @@ function ResetForm() {
           required
         />
       </div>
-      {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="text-sm text-(--danger)">{error}</p> : null}
       <BusyButton className="btn btn-primary w-full" type="submit" busy={loading} busyLabel="Updating…">
         Update password & sign in
       </BusyButton>
-      <Link href="/login" className="block text-center text-sm text-[var(--accent)] underline">
+      <Link href="/login" className="block text-center text-sm text-(--accent) underline">
         Back to sign in
       </Link>
     </form>
@@ -103,9 +103,9 @@ export default function ResetPasswordPage() {
   return (
     <div className="mx-auto flex w-full max-w-md min-h-[70vh] flex-col justify-center gap-6">
       <div>
-        <p className="text-sm font-medium uppercase tracking-[0.14em] text-[var(--muted)]">Account</p>
-        <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl leading-tight">Reset password</h1>
-        <p className="mt-2 max-w-sm text-[var(--muted)]">Choose a new password (at least 12 characters).</p>
+        <p className="text-sm font-medium uppercase tracking-[0.14em] text-(--muted)">Account</p>
+        <h1 className="mt-2 font-(family-name:--font-display) text-4xl leading-tight">Reset password</h1>
+        <p className="mt-2 max-w-sm text-(--muted)">Choose a new password (at least 12 characters).</p>
       </div>
       <Suspense
         fallback={

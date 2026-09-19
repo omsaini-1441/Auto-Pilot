@@ -74,8 +74,8 @@ export default function NewJobPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-[family-name:var(--font-display)] text-3xl">Add job</h1>
-        <p className="text-sm text-[var(--muted)]">Link and/or text dump → AI extract → confirm</p>
+        <h1 className="font-(family-name:--font-display) text-3xl">Add job</h1>
+        <p className="text-sm text-(--muted)">Link and/or text dump → AI extract → confirm</p>
       </div>
 
       <form onSubmit={save} className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0">
@@ -115,7 +115,7 @@ export default function NewJobPage() {
           >
             Extract with AI
           </BusyButton>
-          {extractMeta ? <p className="text-xs text-[var(--muted)]">{extractMeta}</p> : null}
+          {extractMeta ? <p className="text-xs text-(--muted)">{extractMeta}</p> : null}
         </div>
 
         <div className="card space-y-3">

@@ -75,8 +75,8 @@ export function ApolloClient({ initial }: { initial: Account[] }) {
   return (
     <div className="space-y-5">
       <div className="lg:max-w-3xl">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl">Apollo</h1>
-        <p className="text-sm text-[var(--muted)]">
+        <h1 className="font-(family-name:--font-display) text-3xl">Apollo</h1>
+        <p className="text-sm text-(--muted)">
           Rotate free Apollo logins here. We open people search in a new tab — no paid API required.
           (People API search is free but doesn&apos;t return emails; enrichment burns credits.)
         </p>
@@ -100,7 +100,7 @@ export function ApolloClient({ initial }: { initial: Account[] }) {
       <div className="space-y-4 lg:grid lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.9fr)] lg:items-start lg:gap-5 lg:space-y-0">
         <ul className="space-y-2">
           {accounts.length === 0 ? (
-            <li className="card text-sm text-[var(--muted)]">No accounts yet — add one on the right.</li>
+            <li className="card text-sm text-(--muted)">No accounts yet — add one on the right.</li>
           ) : null}
           {accounts.map((a) => {
             const using = busy === `use:${a.id}`;
@@ -111,13 +111,13 @@ export function ApolloClient({ initial }: { initial: Account[] }) {
                   <p className="font-semibold">
                     {a.label}
                     {a.isActive ? (
-                      <span className="ml-2 rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-xs text-[var(--accent)]">
+                      <span className="ml-2 rounded-full bg-(--accent-soft) px-2 py-0.5 text-xs text-(--accent)">
                         active
                       </span>
                     ) : null}
                   </p>
-                  {a.loginHint ? <p className="text-sm text-[var(--muted)]">{a.loginHint}</p> : null}
-                  {a.notes ? <p className="text-xs text-[var(--muted)]">{a.notes}</p> : null}
+                  {a.loginHint ? <p className="text-sm text-(--muted)">{a.loginHint}</p> : null}
+                  {a.notes ? <p className="text-xs text-(--muted)">{a.notes}</p> : null}
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
                   {!a.isActive ? (
@@ -133,11 +133,11 @@ export function ApolloClient({ initial }: { initial: Account[] }) {
                   ) : null}
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 text-xs text-[var(--danger)] underline disabled:opacity-55"
+                    className="inline-flex items-center gap-1 text-xs text-(--danger) underline disabled:opacity-55"
                     disabled={anyBusy}
                     onClick={() => remove(a.id)}
                   >
-                    {deleting ? <Spinner size="sm" className="text-[var(--danger)]" /> : null}
+                    {deleting ? <Spinner size="sm" className="text-(--danger)" /> : null}
                     {deleting ? "Removing…" : "Remove"}
                   </button>
                 </div>

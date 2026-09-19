@@ -45,11 +45,11 @@ export default function SignupPage() {
   return (
     <div className="mx-auto flex w-full max-w-md min-h-[70vh] flex-col justify-center gap-6">
       <div>
-        <p className="text-sm font-medium uppercase tracking-[0.14em] text-[var(--muted)]">Account</p>
-        <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl leading-tight text-[var(--ink)]">
+        <p className="text-sm font-medium uppercase tracking-[0.14em] text-(--muted)">Account</p>
+        <h1 className="mt-2 font-(family-name:--font-display) text-4xl leading-tight text-(--ink)">
           Create account
         </h1>
-        <p className="mt-2 max-w-sm text-[var(--muted)]">
+        <p className="mt-2 max-w-sm text-(--muted)">
           Sign up with your email. Password must be at least 12 characters.
         </p>
       </div>
@@ -98,13 +98,13 @@ export default function SignupPage() {
             required
           />
         </div>
-        {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
+        {error ? <p className="text-sm text-(--danger)">{error}</p> : null}
         <BusyButton className="btn btn-primary w-full" type="submit" busy={loading} busyLabel="Creating…">
           Create account
         </BusyButton>
-        <p className="text-center text-xs text-[var(--muted)]">
+        <p className="text-center text-xs text-(--muted)">
           Already have an account?{" "}
-          <Link href="/login" className="text-[var(--accent)] underline">
+          <Link href="/login" className="text-(--accent) underline">
             Sign in
           </Link>
         </p>

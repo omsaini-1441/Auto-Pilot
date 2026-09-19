@@ -67,15 +67,15 @@ export function LoginForm() {
           required
         />
       </div>
-      {error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
+      {error ? <p className="text-sm text-(--danger)">{error}</p> : null}
       <BusyButton className="btn btn-primary w-full" type="submit" busy={loading} busyLabel="Signing in…">
         Sign in
       </BusyButton>
       <div className="flex items-center justify-between gap-3 text-xs">
-        <Link href="/forgot-password" className="text-[var(--accent)] underline">
+        <Link href="/forgot-password" className="text-(--accent) underline">
           Forgot password?
         </Link>
-        <Link href="/signup" className="text-[var(--accent)] underline">
+        <Link href="/signup" className="text-(--accent) underline">
           Create account
         </Link>
       </div>

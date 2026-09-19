@@ -30,7 +30,7 @@ export default function LogoutPage() {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3">
       {!done ? <Spinner size="md" label="Signing out" /> : null}
-      <p className="text-sm text-[var(--muted)]">{done ? "Signed out." : "Signing out…"}</p>
+      <p className="text-sm text-(--muted)">{done ? "Signed out." : "Signing out…"}</p>
     </div>
   );
 }

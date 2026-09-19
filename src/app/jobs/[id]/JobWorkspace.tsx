@@ -319,15 +319,15 @@ export function JobWorkspace({
   return (
     <div className="space-y-4">
       <div>
-        <Link href="/" className="text-sm text-[var(--muted)]">
+        <Link href="/" className="text-sm text-()">
           ← Jobs
         </Link>
         <div className="mt-2 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="font-[family-name:var(--font-display)] text-3xl leading-tight lg:text-4xl">
+            <h1 className="font-(family-name:--font-display) text-3xl leading-tight lg:text-4xl">
               {job.company || "Job"}
             </h1>
-            <p className="text-sm text-[var(--muted)]">
+            <p className="text-sm text-()">
               {job.role || "Role TBD"}
               {job.location ? ` · ${job.location}` : ""}
             </p>
@@ -340,13 +340,13 @@ export function JobWorkspace({
             disabled={busy === "outreached"}
             onClick={toggleOutreached}
             className={`relative mt-1 h-7 w-12 shrink-0 rounded-full transition ${
-              outreached ? "bg-[var(--accent)]" : "bg-[var(--border)]"
+              outreached ? "bg-()" : "bg-()"
             } ${busy === "outreached" ? "switch-busy" : ""}`}
             title="Outreached"
           >
             {busy === "outreached" ? (
               <span className="absolute inset-0 flex items-center justify-center">
-                <Spinner size="sm" className="text-[var(--ink)]" />
+                <Spinner size="sm" className="text-()" />
               </span>
             ) : (
               <span
@@ -407,7 +407,7 @@ export function JobWorkspace({
 
             <div>
               {job.contacts.length === 0 ? (
-                <p className="empty-hint lg:rounded-xl lg:border lg:border-dashed lg:border-[var(--border)] lg:py-10">
+                <p className="empty-hint lg:rounded-xl lg:border lg:border-dashed lg:border-() lg:py-10">
                   No contacts yet. Paste a dump above.
                 </p>
               ) : (
@@ -436,7 +436,7 @@ export function JobWorkspace({
                             <span className={`toggle-dot ${on ? "is-on" : ""}`} aria-hidden />
                             <span className="min-w-0 flex-1 text-left">
                               <span className="block truncate font-medium">{c.name}</span>
-                              <span className="block truncate text-xs text-[var(--muted)]">
+                              <span className="block truncate text-xs text-()">
                                 {c.email}
                                 {c.title ? ` · ${c.title}` : ""}
                               </span>
@@ -563,7 +563,7 @@ export function JobWorkspace({
                   />
                 </article>
               ) : templates.length > 0 ? (
-                <p className="empty-hint lg:rounded-xl lg:border lg:border-dashed lg:border-[var(--border)] lg:py-10">
+                <p className="empty-hint lg:rounded-xl lg:border lg:border-dashed lg:border-() lg:py-10">
                   Select a contact to preview the email.
                 </p>
               ) : null}
@@ -626,7 +626,7 @@ export function JobWorkspace({
                     <div className="mail-card-top">
                       <div>
                         <p className="font-semibold">{activeDraft.contact.name}</p>
-                        <p className="text-xs text-[var(--muted)]">{activeDraft.contact.email}</p>
+                        <p className="text-xs text-()">{activeDraft.contact.email}</p>
                       </div>
                       <span className="status-pill">{activeDraft.status}</span>
                     </div>
@@ -704,7 +704,7 @@ export function JobWorkspace({
       ) : null}
 
       {toast ? (
-        <div className="fixed bottom-4 left-1/2 z-50 w-[min(92vw,28rem)] -translate-x-1/2 rounded-lg bg-[var(--ink)] px-4 py-3 text-center text-sm text-white shadow-lg">
+        <div className="fixed bottom-4 left-1/2 z-50 w-[min(92vw,28rem)] -translate-x-1/2 rounded-lg bg-() px-4 py-3 text-center text-sm text-white shadow-lg">
           {toast}
         </div>
       ) : null}

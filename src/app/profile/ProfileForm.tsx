@@ -100,7 +100,7 @@ export function ProfileForm({ initial }: { initial: Profile }) {
         <BusyButton className="btn btn-primary w-full lg:w-auto lg:min-w-[10rem]" type="submit" busy={saving} busyLabel="Saving…">
           Save profile
         </BusyButton>
-        {saved ? <p className="text-sm text-[var(--accent)]">Saved</p> : null}
+        {saved ? <p className="text-sm text-(--accent)">Saved</p> : null}
       </div>
     </form>
   );

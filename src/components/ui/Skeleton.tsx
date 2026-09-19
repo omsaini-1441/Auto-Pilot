@@ -14,11 +14,11 @@ export function JobListSkeleton() {
         <Skeleton className="h-8 w-16 rounded-full" />
         <Skeleton className="h-8 w-24 rounded-full" />
       </div>
-      <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-white/90">
-        <div className="border-b border-[var(--border)] bg-[var(--surface)] px-3 py-2">
+      <div className="overflow-hidden rounded-xl border border-(--border) bg-white/90">
+        <div className="border-b border-(--border) bg-(--surface) px-3 py-2">
           <Skeleton className="h-3 w-24" />
         </div>
-        <ul className="divide-y divide-[var(--border)]">
+        <ul className="divide-y divide-(--border)">
           {Array.from({ length: 4 }).map((_, i) => (
             <li key={i} className="grid grid-cols-[1fr_auto] items-center gap-2 px-3 py-3">
               <div className="min-w-0 space-y-2">

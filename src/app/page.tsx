@@ -22,8 +22,8 @@ export default async function HomePage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="hidden font-[family-name:var(--font-display)] text-3xl lg:block">Jobs</h1>
-          <p className="text-sm text-[var(--muted)] lg:mt-1">Your saved hiring pipeline</p>
+          <h1 className="hidden font-(family-name:--font-display) text-3xl lg:block">Jobs</h1>
+          <p className="text-sm text-(--muted) lg:mt-1">Your saved hiring pipeline</p>
         </div>
         <Link href="/jobs/new" className="btn btn-accent">
           Add job
@@ -33,7 +33,7 @@ export default async function HomePage() {
       {jobs.length === 0 ? (
         <div className="card text-center lg:mx-auto lg:max-w-lg">
           <p className="font-medium">No jobs yet</p>
-          <p className="mt-1 text-sm text-[var(--muted)]">
+          <p className="mt-1 text-sm text-(--muted)">
             Paste a posting link or text dump to extract company, role, location.
           </p>
           <Link href="/jobs/new" className="btn btn-primary mt-4 inline-flex">

@@ -41,8 +41,8 @@ export function RichEditor({ value, onChange, placeholder }: Props) {
 
   if (!editor) {
     return (
-      <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-white" aria-busy="true">
-        <div className="flex flex-wrap gap-1 border-b border-[var(--border)] bg-[var(--surface)] px-2 py-1.5">
+      <div className="overflow-hidden rounded-lg border border-(--border) bg-white" aria-busy="true">
+        <div className="flex flex-wrap gap-1 border-b border-(--border) bg-(--surface) px-2 py-1.5">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="skeleton h-7 w-12 rounded" />
           ))}
@@ -57,8 +57,8 @@ export function RichEditor({ value, onChange, placeholder }: Props) {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-white">
-      <div className="flex flex-wrap gap-1 border-b border-[var(--border)] bg-[var(--surface)] px-2 py-1.5">
+    <div className="overflow-hidden rounded-lg border border-(--border) bg-white">
+      <div className="flex flex-wrap gap-1 border-b border-(--border) bg-(--surface) px-2 py-1.5">
         {(
           [
             ["Bold", () => editor.chain().focus().toggleBold().run(), editor.isActive("bold")],
@@ -73,7 +73,7 @@ export function RichEditor({ value, onChange, placeholder }: Props) {
             type="button"
             onClick={action}
             className={`rounded px-2 py-1 text-xs font-medium ${
-              active ? "bg-[var(--ink)] text-white" : "bg-white text-[var(--ink)] border border-[var(--border)]"
+              active ? "bg-(--ink) text-white" : "bg-white text-(--ink) border border-(--border)"
             }`}
           >
             {label}
@@ -81,7 +81,7 @@ export function RichEditor({ value, onChange, placeholder }: Props) {
         ))}
         <button
           type="button"
-          className="rounded border border-[var(--border)] bg-white px-2 py-1 text-xs font-medium"
+          className="rounded border border-(--border) bg-white px-2 py-1 text-xs font-medium"
           onClick={() => {
             const url = window.prompt("Link URL");
             if (!url) return;

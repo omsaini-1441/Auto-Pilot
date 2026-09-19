@@ -10,8 +10,8 @@ export default async function ProfilePage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="font-[family-name:var(--font-display)] text-3xl">Profile</h1>
-        <p className="text-sm text-[var(--muted)]">
+        <h1 className="font-(family-name:--font-display) text-3xl">Profile</h1>
+        <p className="text-sm text-(--muted)">
           Used in templates as {"{{my_*}}"} — also shaped for a future autofill extension
         </p>
       </div>

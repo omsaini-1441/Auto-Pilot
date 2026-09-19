@@ -84,7 +84,7 @@ export function AppNav() {
   }
 
   return (
-    <header className="relative sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur">
+    <header className="relative sticky top-0 z-30 border-b border-(--border) bg-(--bg)/95 backdrop-blur">
       {pending ? (
         <div className="nav-progress" aria-hidden>
           <div className="nav-progress-bar" />
@@ -94,7 +94,7 @@ export function AppNav() {
         <button
           type="button"
           onClick={() => navigate("/")}
-          className="min-w-0 truncate text-left font-[family-name:var(--font-display)] text-lg tracking-tight text-[var(--ink)] lg:text-xl"
+          className="min-w-0 truncate text-left font-(family-name:--font-display) text-lg tracking-tight text-(--ink) lg:text-xl"
         >
           <span className="lg:hidden">{title}</span>
           <span className="hidden lg:inline">Outreach</span>
@@ -110,8 +110,8 @@ export function AppNav() {
                 onClick={() => navigate(l.href)}
                 className={`rounded-md px-2.5 py-1.5 text-sm lg:px-3 ${
                   active
-                    ? "bg-[var(--ink)] text-white"
-                    : "text-[var(--muted)] hover:bg-white/70 hover:text-[var(--ink)]"
+                    ? "bg-(--ink) text-white"
+                    : "text-(--muted) hover:bg-white/70 hover:text-(--ink)"
                 }`}
               >
                 {l.label}
@@ -122,7 +122,7 @@ export function AppNav() {
             type="button"
             onClick={logout}
             disabled={loggingOut}
-            className="ml-2 inline-flex items-center gap-1.5 text-xs text-[var(--muted)] underline disabled:opacity-55 lg:ml-3"
+            className="ml-2 inline-flex items-center gap-1.5 text-xs text-(--muted) underline disabled:opacity-55 lg:ml-3"
           >
             {loggingOut ? <Spinner size="sm" /> : null}
             {loggingOut ? "Logging out…" : "Log out"}
@@ -131,7 +131,7 @@ export function AppNav() {
 
         <button
           type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[var(--border)] bg-white text-[var(--ink)] sm:hidden"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-(--border) bg-white text-(--ink) sm:hidden"
           aria-expanded={open}
           aria-controls={menuId}
           aria-label={open ? "Close menu" : "Open menu"}
@@ -162,12 +162,12 @@ export function AppNav() {
         <div id={menuId} className="sm:hidden">
           <button
             type="button"
-            className="fixed inset-0 z-40 bg-[var(--ink)]/35"
+            className="fixed inset-0 z-40 bg-(--ink)/35"
             aria-label="Close menu"
             onClick={() => setOpen(false)}
           />
           <nav
-            className="absolute inset-x-0 top-full z-50 border-b border-[var(--border)] bg-[var(--bg)] shadow-sm"
+            className="absolute inset-x-0 top-full z-50 border-b border-(--border) bg-(--bg) shadow-sm"
             aria-label="Main"
           >
             <div className="mx-auto max-w-lg px-2 py-2">
@@ -180,8 +180,8 @@ export function AppNav() {
                     onClick={() => navigate(l.href)}
                     className={`block w-full rounded-md px-3 py-3 text-left text-base ${
                       active
-                        ? "bg-[var(--ink)] text-white"
-                        : "text-[var(--ink)] hover:bg-white/70"
+                        ? "bg-(--ink) text-white"
+                        : "text-(--ink) hover:bg-white/70"
                     }`}
                   >
                     {l.label}
@@ -192,7 +192,7 @@ export function AppNav() {
                 type="button"
                 onClick={logout}
                 disabled={loggingOut}
-                className="mt-1 flex w-full items-center gap-2 rounded-md px-3 py-3 text-left text-base text-[var(--muted)] underline disabled:opacity-55"
+                className="mt-1 flex w-full items-center gap-2 rounded-md px-3 py-3 text-left text-base text-(--muted) underline disabled:opacity-55"
               >
                 {loggingOut ? <Spinner size="sm" /> : null}
                 {loggingOut ? "Logging out…" : "Log out"}
