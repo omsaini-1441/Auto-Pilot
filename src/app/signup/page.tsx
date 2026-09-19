@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BusyButton } from "@/components/ui/BusyButton";
+import { PasswordField } from "@/components/ui/PasswordField";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -73,10 +74,8 @@ export default function SignupPage() {
           <label className="label" htmlFor="password">
             Password
           </label>
-          <input
+          <PasswordField
             id="password"
-            className="field"
-            type="password"
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -89,10 +88,8 @@ export default function SignupPage() {
           <label className="label" htmlFor="confirm">
             Confirm password
           </label>
-          <input
+          <PasswordField
             id="confirm"
-            className="field"
-            type="password"
             autoComplete="new-password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}

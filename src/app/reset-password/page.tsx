@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { BusyButton } from "@/components/ui/BusyButton";
+import { PasswordField } from "@/components/ui/PasswordField";
 import { FormCardSkeleton } from "@/components/ui/Skeleton";
 import { Spinner } from "@/components/ui/Spinner";
 
@@ -65,10 +66,8 @@ function ResetForm() {
         <label className="label" htmlFor="password">
           New password
         </label>
-        <input
+        <PasswordField
           id="password"
-          className="field"
-          type="password"
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -80,10 +79,8 @@ function ResetForm() {
         <label className="label" htmlFor="confirm">
           Confirm password
         </label>
-        <input
+        <PasswordField
           id="confirm"
-          className="field"
-          type="password"
           autoComplete="new-password"
           value={confirm}
           onChange={(e) => setConfirm(e.target.value)}
